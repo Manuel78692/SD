@@ -2,11 +2,20 @@
 using System.IO;
 using System.Net.Sockets;
 
+public enum Estado
+{
+    Associada,
+    Operação,
+    Manutenção,
+    Desativada
+}
+
 public class Wavy
 {
     private string AgregadorIP;
     private int Port;
-    private string WavyID;
+    public string WavyID;
+    public Estado EstadoWavy { get; set; }
 
     public Wavy(string IP, int port, string ID)
     {
@@ -15,7 +24,7 @@ public class Wavy
         WavyID = ID;
     }
 
-    public void Send()
+    public void Send(string mensagemCompleta)
     {
         try
         {
@@ -25,9 +34,6 @@ public class Wavy
                 using (StreamReader reader = new StreamReader(stream))
                 using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                 {
-                    // Prepara a mensagem única que contém todas as informações necessárias
-                    // Exemplo: "WAVY01, sensor1=25.4, sensor2=30.2, sensor3=18.9"
-                    string mensagemCompleta = WavyID + ", sensor1=25.4, sensor2=30.2, sensor3=18.9";
                     writer.WriteLine(mensagemCompleta);
                     Console.WriteLine("Mensagem enviada: " + mensagemCompleta);
 

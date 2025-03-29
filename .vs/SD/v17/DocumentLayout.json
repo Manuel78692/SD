@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\ruipe\\source\\repos\\SD\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\ruipe\\Source\\Repos\\SD\\AGREGADOR\\Agregador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:AGREGADOR\\Agregador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FD00E96F-5981-4588-B742-C9CE3D6F19CA}|SERVIDOR\\SERVIDOR.csproj|c:\\users\\ruipe\\source\\repos\\sd\\servidor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FD00E96F-5981-4588-B742-C9CE3D6F19CA}|SERVIDOR\\SERVIDOR.csproj|solutionrelative:servidor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,14 +27,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Agregador.cs",
-              "DocumentMoniker": "C:\\Users\\ruipe\\Source\\Repos\\SD\\AGREGADOR\\Agregador.cs",
-              "RelativeDocumentMoniker": "AGREGADOR\\Agregador.cs",
-              "ToolTip": "C:\\Users\\ruipe\\Source\\Repos\\SD\\AGREGADOR\\Agregador.cs",
-              "RelativeToolTip": "AGREGADOR\\Agregador.cs",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\Program.cs",
+              "RelativeDocumentMoniker": "SERVIDOR\\Program.cs",
+              "ToolTip": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\Program.cs",
+              "RelativeToolTip": "SERVIDOR\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-29T16:38:07.889Z",
+              "WhenOpened": "2025-03-29T17:36:35.048Z",
               "EditorCaption": ""
             }
           ]
