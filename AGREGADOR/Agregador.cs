@@ -12,6 +12,7 @@ class Agregador
     private static readonly string ServidorIP = "127.0.0.1";
     private static readonly int PortServidor = 5000;
 
+    // Método principal que inicia o Agregador
     public static void Main()
     {
         TcpListener listener = new TcpListener(IPAddress.Any, PortWavy);
