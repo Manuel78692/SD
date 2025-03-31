@@ -11,6 +11,7 @@ class Agregador
     // Endereço e porta do Servidor (ao qual o Agregador encaminhará os dados)
     private static readonly string ServidorIP = "127.0.0.1";
     private static readonly int PortServidor = 5000;
+    private static Mutex mutexWavys = new Mutex();
 
     public static void Main()
     {
@@ -36,8 +37,10 @@ class Agregador
 
     private static void ProcessaWavy(TcpClient client)
     {
+        mutexWavys.WaitOne();
         try
         {
+            
             string dadosWavy;
             using (client)
             {
@@ -65,6 +68,7 @@ class Agregador
         {
             Console.WriteLine("Erro ao processar dados da WAVY: " + ex.Message);
         }
+        mutexWavys.ReleaseMutex();
     }
 
     private static void EncaminhaParaServidor(string dados)
