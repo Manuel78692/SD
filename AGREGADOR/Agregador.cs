@@ -37,7 +37,6 @@ class Agregador
 
     private static void ProcessaWavy(TcpClient client)
     {
-        mutexWavys.WaitOne();
         try
         {
             
@@ -68,7 +67,6 @@ class Agregador
         {
             Console.WriteLine("Erro ao processar dados da WAVY: " + ex.Message);
         }
-        mutexWavys.ReleaseMutex();
     }
 
     private static void EncaminhaParaServidor(string dados)
