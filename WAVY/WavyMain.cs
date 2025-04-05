@@ -17,10 +17,12 @@ class WavyMain
         Wavy Wavy02 = new Wavy(AgregadorIP, Port, "WAVY02");
         Wavy Wavy03 = new Wavy(AgregadorIP, Port, "WAVY03");
 
+        
+
         // Run tasks in parallel
-        Task task1 = Task.Run(() => Wavy01.Send("WAVY01:[humidity=10:gps=40.453243,-9.123142]"));
-        Task task2 = Task.Run(() => Wavy02.Send("WAVY02:[humidity=12:gps=40.453244,-9.123143]"));
-        Task task3 = Task.Run(() => Wavy03.Send("WAVY03:[humidity=15:gps=40.453245,-9.123144]"));
+        Task task1 = Task.Run(() => Wavy01.ReceberDados("./dados/dados1.csv"));
+        Task task2 = Task.Run(() => Wavy02.ReceberDados("./dados/dados2.csv"));
+        Task task3 = Task.Run(() => Wavy03.ReceberDados("./dados/dados3.csv"));
 
         await Task.WhenAll(task1, task2, task3);
 

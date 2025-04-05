@@ -1,0 +1,15 @@
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.AssemblyInfoInputs.cache
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.AssemblyInfo.cs
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.csproj.CoreCompileInputs.cache
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.sourcelink.json
+C:\Users\ruipe\source\repos\SD\AGREGADOR\bin\Debug\net8.0\AGREGADOR.exe
+C:\Users\ruipe\source\repos\SD\AGREGADOR\bin\Debug\net8.0\AGREGADOR.deps.json
+C:\Users\ruipe\source\repos\SD\AGREGADOR\bin\Debug\net8.0\AGREGADOR.runtimeconfig.json
+C:\Users\ruipe\source\repos\SD\AGREGADOR\bin\Debug\net8.0\AGREGADOR.dll
+C:\Users\ruipe\source\repos\SD\AGREGADOR\bin\Debug\net8.0\AGREGADOR.pdb
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.dll
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\refint\AGREGADOR.dll
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.pdb
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.genruntimeconfig.cache
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\ref\AGREGADOR.dll
