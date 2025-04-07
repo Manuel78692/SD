@@ -93,12 +93,21 @@ class Agregador
     }
     private static void ProcessaBloco(string[] bloco)
     {
-        // Cada linha do WAVY vem no formato seguinte: "WAVY_ID:[data_type=data]"
-        // O que o AGREGADOR faz é separar os dados e encaminhá-los para o Servidor
-        // Depois também deverá fazer algum tipo de pré-processamento dos dados, se necessário
-        // O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv o que deverá fazer para cada tipo de dado em cada WAVY
-        // Cada linha desse ficheiro segue o seguinte formato: "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
-        // Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, não lê o ficheiro
+        /*
+            Cada linha do WAVY vem no formato seguinte: "WAVY_ID:[data_type=data]"
+
+            O que o AGREGADOR faz é separar os dados e encaminhá-los para o Servidor
+            Depois também deverá fazer algum tipo de pré-processamento dos dados, se necessário
+
+            O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv o que deverá fazer para cada tipo de dado em cada WAVY
+            Cada linha desse ficheiro segue o seguinte formato: "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
+            Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, não lê o ficheiro
+
+            Antes de enviar para o servidor, convém guardar o estado e o 'last sync' do WAVY conectado
+            No ficheiro "wavys.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
+
+            O AGREGADOR também deve atualizar o estado da WAVY. Os estados são Associada, Operação, Manutenção, Desativada
+        */
         
         // string[] partes;
         foreach (string linha in bloco)
@@ -114,6 +123,8 @@ class Agregador
                 string[] tipoDado = dado.Split('=');
                 string dataType = tipoDado[0].Trim(); // Tipo de dado
                 string data = tipoDado[1].Trim(); // Valor do dado
+
+                
             }
         }
     }

@@ -17,8 +17,6 @@ class WavyMain
         Wavy Wavy02 = new Wavy(AgregadorIP, Port, "WAVY02");
         Wavy Wavy03 = new Wavy(AgregadorIP, Port, "WAVY03");
 
-        
-
         // Run tasks in parallel
         Task task1 = Task.Run(() => Wavy01.ReceberDados("./dados/dados1.csv"));
         Task task2 = Task.Run(() => Wavy02.ReceberDados("./dados/dados2.csv"));
