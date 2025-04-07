@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 
@@ -16,15 +17,41 @@ public class Wavy
     private int Port;
     public string WavyID;
     public Estado EstadoWavy { get; set; }
+    private List<string> bufferDados;
+    private const int MaxBufferSize = 5; // Tamanho máximo do buffer
 
     public Wavy(string IP, int port, string ID)
     {
         AgregadorIP = IP;
         Port = port;
         WavyID = ID;
+        bufferDados = new List<string>();
     }
 
-    public void Send()
+    public void ReceberDados(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("Arquivo CSV não encontrado.");
+            return;
+        }
+        using (StreamReader reader = new StreamReader(filePath))
+        {
+            while (!reader.EndOfStream)
+            {
+                // Lê a linha do arquivo CSV
+                string linha = reader.ReadLine();
+                bufferDados.Add(linha);
+                // Quando tivermos MaxBufferSize linhas, enviamos o bloco
+                if (bufferDados.Count >= MaxBufferSize)
+                {
+                    EnviarBloco();
+                    bufferDados.Clear(); // Limpa o buffer após envio
+                }
+            }
+        }
+    }
+    private void EnviarBloco()
     {
         string mensagemCompleta = GerarBlocoCSV();
         try
@@ -35,54 +62,34 @@ public class Wavy
                 using (StreamReader reader = new StreamReader(stream))
                 using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                 {
-                    writer.WriteLine(mensagemCompleta);
-                    Console.WriteLine("Mensagem enviada: " + mensagemCompleta);
+                    // Envia a linha de cabeçalho com o identificador do bloco e o número de linhas
+                    string header = "BLOCK " + bufferDados.Count;
+                    writer.WriteLine(header);
+                    Console.WriteLine("Enviado header: " + header);
+
+                    // Envia cada linha do bloco
+                    foreach (string linha in bufferDados)
+                    {
+                        writer.WriteLine(linha);
+                        Console.WriteLine("Enviada linha: " + linha);
+                    }
 
                     // Aguarda o ACK do Agregador
                     string resposta = reader.ReadLine();
                     if (resposta == "ACK")
                     {
-                        Console.WriteLine("ACK recebido. Conexão encerrada.");
+                        Console.WriteLine("ACK recebido. Bloco enviado com sucesso.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Resposta inesperada: " + resposta);
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro na conexão: " + ex.Message);
-        }
-    }
-    //bloco de dados csv
-    private string GerarBlocoCSV()
-    {
-        Random rnd = new Random();
-
-        string timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-        double temp = 15 + rnd.NextDouble() * 10;
-        double ph = 6.5 + rnd.NextDouble();
-        double acelX = rnd.NextDouble();
-        double acelY = rnd.NextDouble();
-        double acelZ = 9.8 + rnd.NextDouble() * 0.1;
-        double gyroX = rnd.NextDouble();
-        double gyroY = rnd.NextDouble();
-        double gyroZ = rnd.NextDouble();
-        string status = EstadoWavy.ToString().ToLower(); // usa o enum como string
-        string sensores = "\"temperatura,ph,acelerometro,giroscopio,gps\"";
-        double lat = 41.2950 + rnd.NextDouble() * 0.005;
-        double lon = -7.7440 + rnd.NextDouble() * 0.005;
-
-        return $"{WavyID},{timestamp},{temp:F1},{ph:F2},{acelX:F2},{acelY:F2},{acelZ:F2},{gyroX:F2},{gyroY:F2},{gyroZ:F2},{status},{sensores},{lat:F6},{lon:F6}";
-    }
-}
-class Programa
-{
-    static void Main()
-    {
-        Wavy wavy = new Wavy("127.0.0.1", 5001, "WAVY_01");
-        for (int i = 0; i < 5; i++)
-        {
-            wavy.Send();
-            Thread.Sleep(10000);
+            Console.WriteLine("Erro ao enviar bloco: " + ex.Message);
         }
     }
 }
