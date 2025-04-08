@@ -3,18 +3,39 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Xml;
+using System.Globalization;
 
 class Agregador
 {
     // Porta para escutar as conexões das WAVYs
     private static readonly int PortWavy = 5001;
+    // Dados do Servidor para encaminhamento (se necessário)
     private static readonly string ServidorIP = "127.0.0.1";
     private static readonly int PortServidor = 5000;
+    
+    // Pasta onde estão os CSV's (deve existir)
+    private static readonly string dataFolder = "data";
+    // Tipos de dados válidos
+    private static readonly string[] tiposValidos = {
+        "Humidade", "Temperatura", "PH", "Acelerometro", "Gyroscopio", "GPS", "Timestamp"
+    };
+    
+    // Objeto de lock único para escrita nos ficheiros
+    private static readonly object fileLock = new object();
 
-    // Método principal que inicia o Agregador
     public static void Main()
     {
+        // Verifica se a pasta "data" existe
+        if (!Directory.Exists(dataFolder))
+        {
+            Console.WriteLine("Erro: Pasta 'data/' não existe.");
+            return;
+        }
+
+        // Inicializa os ficheiros CSV (só cria se não existirem)
+        InitializeCSVs();
+
+        // Inicia o listener para conexões das WAVYs
         TcpListener listener = new TcpListener(IPAddress.Any, PortWavy);
         listener.Start();
         Console.WriteLine("Agregador iniciado na porta " + PortWavy + ". Aguardando conexões das WAVYs...");
@@ -35,6 +56,26 @@ class Agregador
         }
     }
 
+    private static void InitializeCSVs()
+    {
+        lock (fileLock)
+        {
+            // Para cada tipo válido, assegura que o ficheiro CSV existe com o cabeçalho no formato definido.
+            foreach (string tipo in tiposValidos)
+            {
+                string path = Path.Combine(dataFolder, tipo + ".csv");
+                if (!File.Exists(path))
+                {
+                    using (StreamWriter sw = new StreamWriter(path))
+                    {
+                        // Cabeçalho: Wavy_ID:Status:[Data_type]:last_sync
+                        sw.WriteLine($"Wavy_ID:Status:[{tipo}]:last_sync");
+                    }
+                }
+            }
+        }
+    }
+
     private static void ProcessaWavy(TcpClient client)
     {
         try
@@ -45,18 +86,14 @@ class Agregador
                 using (StreamReader reader = new StreamReader(stream))
                 using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                 {
-                    // Lê a linha de header que indica o início do bloco e quantas linhas seguirão
+                    // Exemplo de header: "BLOCK 1", indicando que haverá um bloco com 1 linha.
                     string header = reader.ReadLine();
                     Console.WriteLine("Header recebido: " + header);
 
                     if (header != null && header.StartsWith("BLOCK"))
                     {
-                        // Antes de tuodo, deve guardar o sync do WAVY para um ficheiro .csv
-                        // Cada linha do ficheiro segue o seguinte formato: "WAVY_ID:status:[data_types]:last_sync"
-
-                        // Extrai o número de linhas a serem lidas
-                        string[] partes = header.Split(' ');
-                        if (partes.Length == 2 && int.TryParse(partes[1], out int numLinhas))
+                        string[] partesHeader = header.Split(' ');
+                        if (partesHeader.Length == 2 && int.TryParse(partesHeader[1], out int numLinhas))
                         {
                             string[] bloco = new string[numLinhas];
                             for (int i = 0; i < numLinhas; i++)
@@ -81,7 +118,13 @@ class Agregador
                         else
                         {
                             Console.WriteLine("Formato de header inválido.");
+                            writer.WriteLine("ERRO: Formato de header inválido.");
                         }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Header não identificado.");
+                        writer.WriteLine("ERRO: Header não identificado.");
                     }
                 }
             }
@@ -89,46 +132,93 @@ class Agregador
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao processar bloco: " + ex.Message);
+            Console.WriteLine("Erro ao processar dados da WAVY: " + ex.Message);
         }
     }
+
     private static void ProcessaBloco(string[] bloco)
     {
-        /*
-            Cada linha do WAVY vem no formato seguinte: "WAVY_ID:[data_type=data]"
-
-            O que o AGREGADOR faz é separar os dados e encaminhá-los para o Servidor
-            Depois também deverá fazer algum tipo de pré-processamento dos dados, se necessário
-
-            O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv o que deverá fazer para cada tipo de dado em cada WAVY
-            Cada linha desse ficheiro segue o seguinte formato: "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
-            Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, não lê o ficheiro
-
-            Antes de enviar para o servidor, convém guardar o estado e o 'last sync' do WAVY conectado
-            No ficheiro "wavys.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
-
-            O AGREGADOR também deve atualizar o estado da WAVY. Os estados são Associada, Operação, Manutenção, Desativada
-        */
-        
-        // string[] partes;
+        // Cada linha do bloco tem o formato:
+        // "WAVY_ID:STATUS:[Tipo1=Timestamp1, Tipo2=Timestamp2, ...]"
         foreach (string linha in bloco)
         {
-            // Extrai o ID da WAVY e os dados
-            string[] partes = linha.Split('[');
-            string wavyId = partes[0].TrimEnd(':'); // ID da WAVY
-            string[] dados = partes[1].TrimEnd(']').Split(':'); // Dados da WAVY
-            
-            foreach (string dado in dados)
+            try
             {
-                // Aqui, o dado é do tipo "data_type=data"
-                string[] tipoDado = dado.Split('=');
-                string dataType = tipoDado[0].Trim(); // Tipo de dado
-                string data = tipoDado[1].Trim(); // Valor do dado
+                // Separa a parte inicial ("WAVY_ID:STATUS") dos dados.
+                string[] partes = linha.Split(new char[] {':'}, 3);
+                if (partes.Length < 3)
+                {
+                    Console.WriteLine("Linha com formato inesperado: " + linha);
+                    continue;
+                }
 
-                
+                string wavyId = partes[0].Trim();
+                string status = partes[1].Trim();
+                // A parte restante contém os dados entre parenteses retos
+                string dadosComPR = partes[2].Trim();
+                if (dadosComPR.StartsWith("[") && dadosComPR.EndsWith("]"))
+                {
+                    string dadosConteudo = dadosComPR.Substring(1, dadosComPR.Length - 2);
+                    // Divide os pares "Tipo=Timestamp" usando a vírgula
+                    string[] pares = dadosConteudo.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (string par in pares)
+                    {
+                        string[] info = par.Split('=');
+                        if (info.Length != 2)
+                        {
+                            Console.WriteLine("Formato de par inválido: " + par);
+                            continue;
+                        }
+                        
+                        string tipo = info[0].Trim();
+                        string timestampRecebido = info[1].Trim();
+
+                        if (!Array.Exists(tiposValidos, t => t.Equals(tipo, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            Console.WriteLine("Tipo de dado '" + tipo + "' não é válido. Ignorando.");
+                            continue;
+                        }
+
+                        // Tenta converter o timestamp para DateTime usando o formato "yyyy-MM-dd HH:mm:ss".
+                        DateTime timestamp;
+                        if (!DateTime.TryParseExact(timestampRecebido, "yyyy-MM-dd HH:mm:ss", 
+                                CultureInfo.InvariantCulture, DateTimeStyles.None, out timestamp))
+                        {
+                            Console.WriteLine("Timestamp inválido para " + tipo + ". Usando a hora atual.");
+                            timestamp = DateTime.Now;
+                        }
+
+                        // Formata o timestamp para "YYYY-MM-DD-HH-mm-ss"
+                        string timestampFormatado = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
+
+                        // Linha do CSV no formato: Wavy_ID:Status:[Data_type]:last_sync
+                        string linhaCSV = $"{wavyId}:{status}:[{tipo}]:{timestampFormatado}";
+                        string caminhoCSV = Path.Combine(dataFolder, tipo + ".csv");
+
+                        lock (fileLock)
+                        {
+                            using (StreamWriter sw = new StreamWriter(caminhoCSV, true))
+                            {
+                                sw.WriteLine(linhaCSV);
+                            }
+                        }
+                        Console.WriteLine($"Dados para '{tipo}' atualizados com sucesso no CSV.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Dados do bloco sem formatação de Parenteses retos " + dadosComPR);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao processar a linha do bloco: " + ex.Message);
             }
         }
     }
+
+    // Exemplo de método para encaminhar dados para o Servidor (caso seja necessário)
     private static void EncaminhaParaServidor(string dados)
     {
         // No servidor, existem .csv para cada tipo de dados

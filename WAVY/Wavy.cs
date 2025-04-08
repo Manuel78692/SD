@@ -56,7 +56,7 @@ public class Wavy
     }
     private void EnviarBloco()
     {
-        string mensagemCompleta = GerarBlocoCSV();
+        
         try
         {
             using (TcpClient client = new TcpClient(AgregadorIP, Port))
