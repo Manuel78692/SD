@@ -1,0 +1,5 @@
+/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/Wavy.GeneratedMSBuildEditorConfig.editorconfig
+/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/Wavy.AssemblyInfoInputs.cache
+/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/Wavy.AssemblyInfo.cs
+/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/Wavy.csproj.CoreCompileInputs.cache
+/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/Wavy.sourcelink.json
