@@ -43,17 +43,38 @@ class Servidor
                 using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                 {
                     // Lê a mensagem única enviada pelo cliente
-                    string mensagemRecebida = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(mensagemRecebida))
+                    string header = reader.ReadLine();
+                    if (!string.IsNullOrEmpty(header))
                     {
-                        Console.WriteLine("Mensagem recebida: " + mensagemRecebida);
-                        
-                        // Aqui você pode processar a mensagem conforme necessário,
-                        // por exemplo, gravar num ficheiro ou exibir no console.
-                        
-                        // Envia o ACK para confirmar o recebimento
-                        writer.WriteLine("ACK");
-                        Console.WriteLine("ACK enviado. Encerrando conexão.");
+                        Console.WriteLine("Header recebido: " + header);
+
+                        if (header != null && header.StartsWith("BLOCK"))
+                        {
+                            string[] partes = header.Split(' ');
+                            if (partes.Length == 4 && int.TryParse(partes[1], out int numLinhas) && partes[2] == "TYPE") 
+                            {
+                                string[] bloco = new string[numLinhas];
+                                for (int i = 0; i < numLinhas; i++)
+                                {
+                                    bloco[i] = reader.ReadLine();
+                                }
+                                
+                                // Agora, 'bloco' contém todas as linhas enviadas pelo AGREGADOR.
+                                Console.WriteLine("Bloco de dados recebido:");
+                                foreach (string linha in bloco)
+                                {
+                                    Console.WriteLine(linha);
+                                }
+                            }
+                            
+                            // Envia o ACK para confirmar o recebimento
+                            writer.WriteLine("ACK");
+                            Console.WriteLine("ACK enviado. Encerrando conexão.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Formato de header inválido.");
+                        }
                     }
                 }
             }

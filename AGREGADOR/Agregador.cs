@@ -108,7 +108,9 @@ class Agregador
 
             O AGREGADOR também deve atualizar o estado da WAVY. Os estados são Associada, Operação, Manutenção, Desativada
         */
-        
+         // Dictionary to store lists for each data type
+        Dictionary<string, List<string>> sensorData = new Dictionary<string, List<string>>();
+
         // string[] partes;
         foreach (string linha in bloco)
         {
@@ -124,34 +126,71 @@ class Agregador
                 string dataType = tipoDado[0].Trim(); // Tipo de dado
                 string data = tipoDado[1].Trim(); // Valor do dado
 
-                
+                // If the list for this data type doesn't exist, create it.
+                if (!sensorData.ContainsKey(dataType))
+                {
+                    sensorData[dataType] = new List<string>();
+                }
+                // Add the data to the appropriate list.
+                sensorData[dataType].Add(data);
             }
         }
+        // Debug: Print the data for each type
+        foreach (var entry in sensorData)
+        {
+            Console.WriteLine($"Tipo de dado: {entry.Key}");
+            foreach (var data in entry.Value)
+            {
+                Console.WriteLine($"  Dado: {data}");
+            }
+        }
+        EncaminhaParaServidor(sensorData);
     }
-    private static void EncaminhaParaServidor(string dados)
+    private static void EncaminhaParaServidor(Dictionary<string, List<string>> dados)
     {
         // No servidor, existem .csv para cada tipo de dados
         // O que o AGREGADOR deverá fazer é enviar os dados separados por tipo de dados
+        /* 
+            Formato de dados enviados para o servidor:
+            BLOCK size_of_data TYPE data_type
+            WAVY_ID:data
+            (...)
+        */
         try
         {
-            using (TcpClient clienteServidor = new TcpClient(ServidorIP, PortServidor))
+            foreach (var entry in dados)
             {
-                NetworkStream stream = clienteServidor.GetStream();
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
+                using (TcpClient clienteServidor = new TcpClient(ServidorIP, PortServidor))
                 {
-                    // Envia os dados para o Servidor
-                    writer.WriteLine(dados);
-                    Console.WriteLine("Dados encaminhados ao Servidor: " + dados);
-
-                    // Aguarda ACK do Servidor
-                    string resposta = reader.ReadLine();
-                    if (resposta == "ACK")
+                    NetworkStream stream = clienteServidor.GetStream();
+                    using (StreamReader reader = new StreamReader(stream))
+                    using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                     {
-                        Console.WriteLine("ACK recebido do Servidor.");
+                        // Envia os dados para o Servidor
+                        string tipoDado = entry.Key;
+                        List<string> valores = entry.Value;
+
+                        // Envia o header com o tipo de dado
+                        writer.WriteLine("BLOCK " + valores.Count + " " + "TYPE " + tipoDado);
+                        Console.WriteLine("BLOCK " + valores.Count + " " + "TYPE " + tipoDado);
+
+                        // Envia os dados da WAVY
+                        foreach (string valor in valores)
+                        {
+                            writer.WriteLine(valor);
+                            Console.WriteLine(tipoDado + " " + valor);
+                        }
+
+                        // Aguarda ACK do Servidor
+                        string resposta = reader.ReadLine();
+                        if (resposta == "ACK")
+                        {
+                            Console.WriteLine("ACK recebido do Servidor.");
+                        }
                     }
                 }
             }
+            
         }
         catch (Exception ex)
         {
