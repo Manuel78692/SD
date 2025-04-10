@@ -21,7 +21,7 @@ class Servidor
             {
                 TcpClient client = listener.AcceptTcpClient();
                 Console.WriteLine("Conexão recebida.");
-                Thread clientThread = new Thread(() => ProcessClient(client));
+                Thread clientThread = new Thread(() => ProcessaCliente(client));
                 clientThread.Start();
             }
             catch (Exception ex)
@@ -31,7 +31,7 @@ class Servidor
         }
     }
 
-    private static void ProcessClient(TcpClient client)
+    private static void ProcessaCliente(TcpClient client)
     {
         try
         {
