@@ -19,6 +19,8 @@ public class Wavy
     private int Port;
     // Identificador da WAVY
     private string WavyID;
+    // AGREGADOR associado
+    private string? AgregadorID;
     // Estado atual da WAVY
     public Estado EstadoWavy { get; set; }
     // Buffer de dados para armazenar as linhas lidas do CSV, para depois enviar para o AGREGADOR
