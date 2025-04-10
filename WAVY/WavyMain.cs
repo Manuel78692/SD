@@ -9,8 +9,7 @@ class WavyMain
     {
         // Run async Main logic inside a Task and wait for it synchronously
         //Task.Run(async () => await RunAsync()).Wait();
-        TemperatureYearSimulator t = new TemperatureYearSimulator();
-        t.Start();
+        TemperatureYearSimulator.Start();
     }
 
     private static async Task RunAsync()
