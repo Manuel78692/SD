@@ -1,0 +1,274 @@
+using System;
+using System.IO;
+using System.Globalization;
+using System.Collections.Generic;
+
+class CoastalArea
+{
+    public string City { get; set; }
+    public string Region { get; set; }
+    
+    // Valores baseline (ponto de partida) para a área costeira
+    public double BaselineMinLatitude { get; set; }
+    public double BaselineMaxLatitude { get; set; }
+    public double BaselineMinLongitude { get; set; }
+    public double BaselineMaxLongitude { get; set; }
+    public double BaselineMinDepth { get; set; }
+    public double BaselineMaxDepth { get; set; }
+    
+    // Valores atuais que serão atualizados via random walk
+    public double CurrentMinLatitude { get; set; }
+    public double CurrentMaxLatitude { get; set; }
+    public double CurrentMinLongitude { get; set; }
+    public double CurrentMaxLongitude { get; set; }
+    public double CurrentMinDepth { get; set; }
+    public double CurrentMaxDepth { get; set; }
+    
+    // Gap baseline (diferença entre max e min). Essa informação nos ajuda a manter uma consistência.
+    public double LatitudeGap => BaselineMaxLatitude - BaselineMinLatitude;
+    public double LongitudeGap => BaselineMaxLongitude - BaselineMinLongitude;
+    public double DepthGap => BaselineMaxDepth - BaselineMinDepth;
+    
+    // Método para inicializar os valores atuais com os valores baseline.
+    public void InitializeCurrentValues()
+    {
+        CurrentMinLatitude = BaselineMinLatitude;
+        CurrentMaxLatitude = BaselineMaxLatitude;
+        CurrentMinLongitude = BaselineMinLongitude;
+        CurrentMaxLongitude = BaselineMaxLongitude;
+        CurrentMinDepth = BaselineMinDepth;
+        CurrentMaxDepth = BaselineMaxDepth;
+    }
+    
+    public override string ToString()
+    {
+        return $"Cidade: {City} (Região: {Region})\n" +
+               $"Coordenadas: Lat [{CurrentMinLatitude:F4}, {CurrentMaxLatitude:F4}], Lon [{CurrentMinLongitude:F4}, {CurrentMaxLongitude:F4}]\n" +
+               $"Profundidade: {CurrentMinDepth:F1} a {CurrentMaxDepth:F1} m";
+    }
+}
+
+class CoastalAreaSimulator
+{
+    static Random random = new Random();
+    
+    // Define os dados baseline para cada cidade (baseados nos exemplos anteriores)
+    static List<CoastalArea> GetBaselineCoastalAreas()
+    {
+        return new List<CoastalArea>
+        {
+            new CoastalArea {
+                City = "Porto",
+                Region = "Norte",
+                BaselineMinLatitude = 41.12,
+                BaselineMaxLatitude = 41.14,
+                BaselineMinLongitude = -8.70,
+                BaselineMaxLongitude = -8.67,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 10
+            },
+            new CoastalArea {
+                City = "Viana do Castelo",
+                Region = "Norte",
+                BaselineMinLatitude = 41.70,
+                BaselineMaxLatitude = 41.72,
+                BaselineMinLongitude = -8.84,
+                BaselineMaxLongitude = -8.80,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 15
+            },
+            new CoastalArea {
+                City = "Braga", // Usada apenas para exemplo, ainda que seja interiorana
+                Region = "Norte",
+                BaselineMinLatitude = 41.55,
+                BaselineMaxLatitude = 41.57,
+                BaselineMinLongitude = -8.42,
+                BaselineMaxLongitude = -8.40,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 5
+            },
+            new CoastalArea {
+                City = "Aveiro",
+                Region = "Centro",
+                BaselineMinLatitude = 40.64,
+                BaselineMaxLatitude = 40.66,
+                BaselineMinLongitude = -8.67,
+                BaselineMaxLongitude = -8.63,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 12
+            },
+            new CoastalArea {
+                City = "Coimbra", // Apenas exemplo
+                Region = "Centro",
+                BaselineMinLatitude = 40.20,
+                BaselineMaxLatitude = 40.22,
+                BaselineMinLongitude = -8.42,
+                BaselineMaxLongitude = -8.40,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 5
+            },
+            new CoastalArea {
+                City = "Leiria",
+                Region = "Centro",
+                BaselineMinLatitude = 39.75,
+                BaselineMaxLatitude = 39.77,
+                BaselineMinLongitude = -8.80,
+                BaselineMaxLongitude = -8.78,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 10
+            },
+            new CoastalArea {
+                City = "Lisboa",
+                Region = "Lisboa",
+                BaselineMinLatitude = 38.65,
+                BaselineMaxLatitude = 38.70,
+                BaselineMinLongitude = -9.15,
+                BaselineMaxLongitude = -9.10,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 8
+            },
+            new CoastalArea {
+                City = "Setúbal Norte",
+                Region = "Lisboa",
+                BaselineMinLatitude = 38.50,
+                BaselineMaxLatitude = 38.55,
+                BaselineMinLongitude = -8.90,
+                BaselineMaxLongitude = -8.85,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 8
+            },
+            new CoastalArea {
+                City = "Setúbal Sul",
+                Region = "Alentejo",
+                BaselineMinLatitude = 38.55,
+                BaselineMaxLatitude = 38.60,
+                BaselineMinLongitude = -8.85,
+                BaselineMaxLongitude = -8.80,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 6
+            },
+            new CoastalArea {
+                City = "Beja",
+                Region = "Alentejo",
+                BaselineMinLatitude = 38.40,
+                BaselineMaxLatitude = 38.42,
+                BaselineMinLongitude = -8.70,
+                BaselineMaxLongitude = -8.68,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 5
+            },
+            new CoastalArea {
+                City = "Faro",
+                Region = "Algarve",
+                BaselineMinLatitude = 37.01,
+                BaselineMaxLatitude = 37.03,
+                BaselineMinLongitude = -7.94,
+                BaselineMaxLongitude = -7.92,
+                BaselineMinDepth = 0,
+                BaselineMaxDepth = 10
+            }
+        };
+    }
+    
+    // Atualiza os valores da área costeira com uma "caminhada aleatória" (random walk)
+    // para cada parâmetro (latitude, longitude e profundidade)
+    // Os valores são atualizados em pequenos passos e limitados dentro de um desvio máximo do baseline.
+    static void UpdateCoastalAreaRandomWalk(CoastalArea area, double maxLatDeviation, double maxLonDeviation, double maxDepthDeviation)
+    {
+        // Gera pequenos incrementos aleatórios (por exemplo, entre -0.005 e 0.005 para coordenadas)
+        double deltaMinLat = (random.NextDouble() - 0.5) * 0.01;
+        double deltaMinLon = (random.NextDouble() - 0.5) * 0.01;
+        double deltaMinDepth = (random.NextDouble() - 0.5); // profundidade: ±0.5 a 1 m
+        
+        // Atualiza o valor mínimo mantendo dentro do baseline ± desvio máximo
+        area.CurrentMinLatitude = Clamp(area.CurrentMinLatitude + deltaMinLat, area.BaselineMinLatitude - maxLatDeviation, area.BaselineMinLatitude + maxLatDeviation);
+        area.CurrentMinLongitude = Clamp(area.CurrentMinLongitude + deltaMinLon, area.BaselineMinLongitude - maxLonDeviation, area.BaselineMinLongitude + maxLonDeviation);
+        area.CurrentMinDepth = Clamp(area.CurrentMinDepth + deltaMinDepth, area.BaselineMinDepth - maxDepthDeviation, area.BaselineMinDepth + maxDepthDeviation);
+        
+        // Para manter a consistência, a diferença (gap) entre min e max será o baseline gap acrescido de um pequeno ruído.
+        double latGap = area.LatitudeGap + (random.NextDouble() - 0.5) * 0.005;
+        double lonGap = area.LongitudeGap + (random.NextDouble() - 0.5) * 0.005;
+        double depthGap = area.DepthGap + (random.NextDouble() - 0.5) * 0.5;
+        
+        area.CurrentMaxLatitude = Clamp(area.CurrentMinLatitude + latGap, area.BaselineMaxLatitude - maxLatDeviation, area.BaselineMaxLatitude + maxLatDeviation);
+        area.CurrentMaxLongitude = Clamp(area.CurrentMinLongitude + lonGap, area.BaselineMaxLongitude - maxLonDeviation, area.BaselineMaxLongitude + maxLonDeviation);
+        area.CurrentMaxDepth = Clamp(area.CurrentMinDepth + depthGap, area.BaselineMaxDepth - maxDepthDeviation, area.BaselineMaxDepth + maxDepthDeviation);
+    }
+    
+    // Função de clamp para restringir um valor dentro de um intervalo [min, max]
+    static double Clamp(double value, double min, double max)
+    {
+        return Math.Max(min, Math.Min(max, value));
+    }
+    
+    static void Main(string[] args)
+    {
+        // Pega a lista de baseline coastal areas
+        List<CoastalArea> baselineAreas = GetBaselineCoastalAreas();
+        
+        // Cria um dicionário que mapeia cada cidade à sua região (opcional, se necessário)
+        Dictionary<string, CoastalArea> cityToArea = new Dictionary<string, CoastalArea>();
+        foreach (var area in baselineAreas)
+        {
+            // Para simulação, fazemos uma cópia dos valores baseline para os atuais
+            CoastalArea copy = new CoastalArea
+            {
+                City = area.City,
+                Region = area.Region,
+                BaselineMinLatitude = area.BaselineMinLatitude,
+                BaselineMaxLatitude = area.BaselineMaxLatitude,
+                BaselineMinLongitude = area.BaselineMinLongitude,
+                BaselineMaxLongitude = area.BaselineMaxLongitude,
+                BaselineMinDepth = area.BaselineMinDepth,
+                BaselineMaxDepth = area.BaselineMaxDepth
+            };
+            copy.InitializeCurrentValues();
+            cityToArea[copy.City] = copy;
+        }
+        
+        // Cria uma lista com todas as cidades disponíveis
+        List<string> citiesList = new List<string>(cityToArea.Keys);
+        
+        // Seleciona aleatoriamente uma cidade
+        string selectedCity = citiesList[random.Next(citiesList.Count)];
+        CoastalArea selectedArea = cityToArea[selectedCity];
+        
+        Console.WriteLine("Cidade selecionada: {0} (Região: {1})", selectedArea.City, selectedArea.Region);
+        
+        // Definindo parâmetros para o random walk:
+        // Permite uma variação máxima em torno do baseline para coordenadas e profundidade.
+        double maxLatDeviation = 0.02;      // ±0.02 graus de latitude
+        double maxLonDeviation = 0.02;      // ±0.02 graus de longitude
+        double maxDepthDeviation = 5;       // ±5 metros para profundidade
+        
+        // Simula medições horárias para um dia inteiro (ou o período desejado)
+        DateTime start = new DateTime(2025, 1, 1, 0, 0, 0);
+        DateTime end = start.AddDays(1);
+        DateTime currentTime = start;
+        
+        // Caminho para salvar o CSV dos resultados
+        string csvPath = "coastal_area_progression.csv";
+        using (StreamWriter sw = new StreamWriter(csvPath))
+        {
+            sw.WriteLine("DataHora,Regiao,Cidade,MinLatitude,MaxLatitude,MinLongitude,MaxLongitude,MinDepth,MaxDepth");
+            
+            while (currentTime < end)
+            {
+                // Para cada medição, atualiza os valores da área costeira com um pequeno passo randômico
+                UpdateCoastalAreaRandomWalk(selectedArea, maxLatDeviation, maxLonDeviation, maxDepthDeviation);
+                
+                // Cria a linha do CSV com os valores atuais
+                string line = $"{currentTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)}," +
+                              $"{selectedArea.Region},{selectedArea.City}," +
+                              $"{selectedArea.CurrentMinLatitude:F4},{selectedArea.CurrentMaxLatitude:F4}," +
+                              $"{selectedArea.CurrentMinLongitude:F4},{selectedArea.CurrentMaxLongitude:F4}," +
+                              $"{selectedArea.CurrentMinDepth:F1},{selectedArea.CurrentMaxDepth:F1}";
+                sw.WriteLine(line);
+                
+                currentTime = currentTime.AddHours(1);
+            }
+        }
+        
+        Console.WriteLine("CSV gerado com sucesso: " + csvPath);
+    }
+}
