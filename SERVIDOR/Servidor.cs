@@ -6,7 +6,8 @@ using System.Threading;
 
 class Servidor
 {
-    private static readonly int Port = 5000; // Mesma porta utilizada pelo Agregador
+    // Porta para escutar as conexões dos AGREGADORes
+    private static readonly int Port = 5000;
 
     public static void Main()
     {
@@ -20,8 +21,6 @@ class Servidor
             {
                 TcpClient client = listener.AcceptTcpClient();
                 Console.WriteLine("Conexão recebida.");
-
-                // Inicia uma nova thread para tratar a conexão
                 Thread clientThread = new Thread(() => ProcessClient(client));
                 clientThread.Start();
             }
@@ -55,16 +54,12 @@ class Servidor
                             {
                                 string[] bloco = new string[numLinhas];
                                 for (int i = 0; i < numLinhas; i++)
-                                {
                                     bloco[i] = reader.ReadLine();
-                                }
                                 
                                 // Agora, 'bloco' contém todas as linhas enviadas pelo AGREGADOR.
                                 Console.WriteLine("Bloco de dados recebido:");
                                 foreach (string linha in bloco)
-                                {
                                     Console.WriteLine(linha);
-                                }
                             }
                             
                             // Envia o ACK para confirmar o recebimento

@@ -13,12 +13,18 @@ public enum Estado
 
 public class Wavy
 {
+    // Ip do AGREGADOR
     private string AgregadorIP;
+    // Porta para enviar os dados para o AGREGADOR
     private int Port;
+    // Identificador da WAVY
     private string WavyID;
+    // Estado atual da WAVY
     public Estado EstadoWavy { get; set; }
+    // Buffer de dados para armazenar as linhas lidas do CSV, para depois enviar para o AGREGADOR
     private List<string> bufferDados;
-    private const int MaxBufferSize = 5; // Tamanho máximo do buffer
+    // Tamanho máximo do buffer
+    private const int MaxBufferSize = 5;
 
     public Wavy(string IP, int port, string ID)
     {

@@ -9,7 +9,9 @@ class Agregador
 {
     // Porta para escutar as conexões das WAVYs
     private static readonly int PortWavy = 5001;
+    // Ip do SERVIDOR
     private static readonly string ServidorIP = "127.0.0.1";
+    // Porta para enviar os dados para o SERVIDOR
     private static readonly int PortServidor = 5000;
 
     public static void Main()
@@ -50,25 +52,18 @@ class Agregador
 
                     if (header != null && header.StartsWith("BLOCK"))
                     {
-                        // Antes de tuodo, deve guardar o sync do WAVY para um ficheiro .csv
-                        // Cada linha do ficheiro segue o seguinte formato: "WAVY_ID:status:[data_types]:last_sync"
-
                         // Extrai o número de linhas a serem lidas
                         string[] partes = header.Split(' ');
                         if (partes.Length == 2 && int.TryParse(partes[1], out int numLinhas))
                         {
                             string[] bloco = new string[numLinhas];
                             for (int i = 0; i < numLinhas; i++)
-                            {
                                 bloco[i] = reader.ReadLine();
-                            }
                             
                             // Agora, 'bloco' contém todas as linhas enviadas pela WAVY.
                             Console.WriteLine("Bloco de dados recebido:");
                             foreach (string linha in bloco)
-                            {
                                 Console.WriteLine(linha);
-                            }
                             
                             // Processa o bloco conforme necessário
                             ProcessaBloco(bloco);
@@ -84,7 +79,6 @@ class Agregador
                     }
                 }
             }
-            // Envia dados para o servidor
         }
         catch (Exception ex)
         {
@@ -99,19 +93,23 @@ class Agregador
             O que o AGREGADOR faz é separar os dados e encaminhá-los para o Servidor
             Depois também deverá fazer algum tipo de pré-processamento dos dados, se necessário
 
-            O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv o que deverá fazer para cada tipo de dado em cada WAVY
-            Cada linha desse ficheiro segue o seguinte formato: "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
-            Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, não lê o ficheiro
+            O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv 
+            o que deverá fazer para cada tipo de dado em cada WAVY
+
+            Cada linha desse ficheiro segue o seguinte formato: 
+            "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
+            Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, 
+            não lê o ficheiro
 
             Antes de enviar para o servidor, convém guardar o estado e o 'last sync' do WAVY conectado
             No ficheiro "wavys.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
 
             O AGREGADOR também deve atualizar o estado da WAVY. Os estados são Associada, Operação, Manutenção, Desativada
         */
-         // Dictionary to store lists for each data type
+
+        // Dicionário para armazenar listas para cada tipo de dado
         Dictionary<string, List<string>> sensorData = new Dictionary<string, List<string>>();
 
-        // string[] partes;
         foreach (string linha in bloco)
         {
             // Extrai o ID da WAVY e os dados
@@ -121,34 +119,31 @@ class Agregador
             
             foreach (string dado in dados)
             {
-                // Aqui, o dado é do tipo "data_type=data"
+                // Aqui, a linha é do tipo "data_type=data"
                 string[] tipoDado = dado.Split('=');
                 string dataType = tipoDado[0].Trim(); // Tipo de dado
                 string data = tipoDado[1].Trim(); // Valor do dado
 
-                // If the list for this data type doesn't exist, create it.
+                // Se a lista para este tipo de dado não existir, cria-a
                 if (!sensorData.ContainsKey(dataType))
-                {
                     sensorData[dataType] = new List<string>();
-                }
-                // Add the data to the appropriate list.
+
+                // Adiciona o dado à lista apropriada
                 sensorData[dataType].Add(data);
             }
         }
-        // Debug: Print the data for each type
+        // Debug: Faz print dos dados separados por tipo
         foreach (var entry in sensorData)
         {
             Console.WriteLine($"Tipo de dado: {entry.Key}");
             foreach (var data in entry.Value)
-            {
                 Console.WriteLine($"  Dado: {data}");
-            }
         }
         EncaminhaParaServidor(sensorData);
     }
     private static void EncaminhaParaServidor(Dictionary<string, List<string>> dados)
     {
-        // No servidor, existem .csv para cada tipo de dados
+        // No servidor, existem ficheiros .csv para cada tipo de dados
         // O que o AGREGADOR deverá fazer é enviar os dados separados por tipo de dados
         /* 
             Formato de dados enviados para o servidor:
@@ -172,21 +167,15 @@ class Agregador
 
                         // Envia o header com o tipo de dado
                         writer.WriteLine("BLOCK " + valores.Count + " " + "TYPE " + tipoDado);
-                        Console.WriteLine("BLOCK " + valores.Count + " " + "TYPE " + tipoDado);
 
                         // Envia os dados da WAVY
                         foreach (string valor in valores)
-                        {
                             writer.WriteLine(valor);
-                            Console.WriteLine(tipoDado + " " + valor);
-                        }
 
                         // Aguarda ACK do Servidor
                         string resposta = reader.ReadLine();
                         if (resposta == "ACK")
-                        {
                             Console.WriteLine("ACK recebido do Servidor.");
-                        }
                     }
                 }
             }
