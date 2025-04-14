@@ -5,10 +5,8 @@ using System.Net.Sockets;
 
 public enum Estado
 {
-    Associada,
-    Operação,
-    Manutenção,
-    Desativada
+    Ativo,
+    Desativado
 }
 
 public class Wavy
