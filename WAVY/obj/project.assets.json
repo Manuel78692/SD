@@ -8,19 +8,19 @@
     "net8.0": []
   },
   "packageFolders": {
-    "/Users/pantufeiro/.nuget/packages/": {}
+    "/Users/manuelpinho/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/Wavy/Wavy.csproj",
-      "projectName": "Wavy",
-      "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/Wavy/Wavy.csproj",
-      "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-      "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/Wavy/obj/",
+      "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
+      "projectName": "WAVY",
+      "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
+      "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+      "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+        "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -60,20 +60,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.14, 8.0.14]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.osx-arm64",
-            "version": "[8.0.14, 8.0.14]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.14, 8.0.14]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"

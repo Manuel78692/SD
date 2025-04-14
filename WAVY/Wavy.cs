@@ -5,17 +5,15 @@ using System.Net.Sockets;
 
 public enum Estado
 {
-    Associada,
-    Operação,
-    Manutenção,
-    Desativada
+    Ativo,
+    Desativado
 }
 
 public class Wavy
 {
     private string AgregadorIP;
     private int Port;
-    public string WavyID;
+    private string WavyID;
     public Estado EstadoWavy { get; set; }
     private List<string> bufferDados;
     private const int MaxBufferSize = 5; // Tamanho máximo do buffer
@@ -30,30 +28,33 @@ public class Wavy
 
     public void ReceberDados(string filePath)
     {
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine("Arquivo CSV não encontrado.");
-            return;
-        }
-        using (StreamReader reader = new StreamReader(filePath))
-        {
-            while (!reader.EndOfStream)
+        // for (int i = 0; i < 10; i++)
+        // {
+            if (!File.Exists(filePath))
             {
-                // Lê a linha do arquivo CSV
-                string linha = reader.ReadLine();
-                bufferDados.Add(linha);
-                // Quando tivermos MaxBufferSize linhas, enviamos o bloco
-                if (bufferDados.Count >= MaxBufferSize)
+                Console.WriteLine("Arquivo CSV não encontrado.");
+                return;
+            }
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                while (!reader.EndOfStream)
                 {
-                    EnviarBloco();
-                    bufferDados.Clear(); // Limpa o buffer após envio
+                    // Lê a linha do arquivo CSV
+                    string linha = reader.ReadLine();
+                    bufferDados.Add(linha);
+                    // Quando tivermos MaxBufferSize linhas, enviamos o bloco
+                    if (bufferDados.Count >= MaxBufferSize)
+                    {
+                        EnviarBloco();
+                        bufferDados.Clear(); // Limpa o buffer após envio
+                    }
                 }
             }
-        }
+        // }
     }
     private void EnviarBloco()
     {
-        string mensagemCompleta = GerarBlocoCSV();
+        
         try
         {
             using (TcpClient client = new TcpClient(AgregadorIP, Port))

@@ -8,7 +8,8 @@ class WavyMain
     public static void Main()
     {
         // Run async Main logic inside a Task and wait for it synchronously
-        Task.Run(async () => await RunAsync()).Wait();
+        //Task.Run(async () => await RunAsync()).Wait();
+        TemperatureYearSimulator.Start();
     }
 
     private static async Task RunAsync()
@@ -16,8 +17,6 @@ class WavyMain
         Wavy Wavy01 = new Wavy(AgregadorIP, Port, "WAVY01");
         Wavy Wavy02 = new Wavy(AgregadorIP, Port, "WAVY02");
         Wavy Wavy03 = new Wavy(AgregadorIP, Port, "WAVY03");
-
-        
 
         // Run tasks in parallel
         Task task1 = Task.Run(() => Wavy01.ReceberDados("./dados/dados1.csv"));

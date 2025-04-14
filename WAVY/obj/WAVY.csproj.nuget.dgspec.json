@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {}
+    "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj": {}
   },
   "projects": {
-    "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
         "projectName": "WAVY",
-        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
-        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -54,20 +54,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.14, 8.0.14]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.osx-arm64",
-              "version": "[8.0.14, 8.0.14]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.14, 8.0.14]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
