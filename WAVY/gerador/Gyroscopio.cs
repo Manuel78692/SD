@@ -84,7 +84,7 @@ public class SimuladorGyro
             string output = string.Format(CultureInfo.InvariantCulture, "{0:F2}:{1}", swell, timestamp);
             
             yield return output;
-            Console.WriteLine("Gyro -- " + output);
+            // Console.WriteLine("Gyro -- " + output);
             
             // await Task.Delay(5000);
             simulationTime = simulationTime.AddSeconds(5);
