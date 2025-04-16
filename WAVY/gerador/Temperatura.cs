@@ -67,7 +67,7 @@ public class SimuladorTemperatura
         return Math.Round(temp, 2);
     }
     
-    public static async Task Start()
+    public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
         // Obtém a cidade e a região através do método presente no arquivo "gerarcidades"
       
@@ -77,51 +77,42 @@ public class SimuladorTemperatura
         // Data de início da simulação (1 de janeiro de 2025, 00:00:00)
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
 
-        // Abre o arquivo Temperatura.csv em modo _append_ (supondo que ele já exista)
-        using (StreamWriter sw = new StreamWriter("Temperatura.csv", true))
+        // Loop da simulação: a cada 5 segundos (tempo real) é calculada e gravada a temperatura.
+        // O tempo simulado avança 5 segundos a cada iteração.
+        while (true)
         {
-            // Loop da simulação: a cada 5 segundos (tempo real) é calculada e gravada a temperatura.
-            // O tempo simulado avança 5 segundos a cada iteração.
-            while (true)
+            // Calcula a temperatura para o instante atual na região selecionada
+            double temp = SmoothRandomTemperature(simulationTime, selectedRegion);
+            
+            // Formata o timestamp conforme "YYYY-MM-DD-HH-mm-ss"
+            string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+            
+            // Formata a mensagem de saída conforme:
+            // Wavy_ID:Status:[temperatura]:last_sync(YYYY-MM-DD-HH-mm-ss)
+            string output = $"Wavy_ID:Status:[{temp:F2}]:last_sync({timestamp})";
+            yield return output;
+            
+            // Também exibe no console para acompanhamento
+            Console.WriteLine("Temp -- " + output);
+
+            // Aguarda 5 segundos em tempo real
+            Thread.Sleep(5000);
+
+            // Avança o tempo simulado em 5 segundos
+            simulationTime = simulationTime.AddSeconds(5);
+
+            // Verifica se completou um dia (86400 segundos)
+            if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
             {
-                // Calcula a temperatura para o instante atual na região selecionada
-                double temp = SmoothRandomTemperature(simulationTime, selectedRegion);
+                // Avança para o dia seguinte (as transições de mês e ano ocorrem automaticamente)
+                simulationTime = simulationTime.Date.AddDays(1);
+                string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
                 
-                // Formata o timestamp conforme "YYYY-MM-DD-HH-mm-ss"
-                string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+                // Grava a mensagem de início de novo dia no CSV
+                string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
                 
-                // Formata a mensagem de saída conforme:
-                // Wavy_ID:Status:[temperatura]:last_sync(YYYY-MM-DD-HH-mm-ss)
-                string output = $"Wavy_ID:Status:[{temp:F2}]:last_sync({timestamp})";
-                
-                // Grava o registro no arquivo CSV
-                sw.WriteLine(output);
-                sw.Flush(); // Garante que os dados sejam escritos imediatamente
-                
-                // Também exibe no console para acompanhamento
-                Console.WriteLine("Temp -- " + output);
-
-                // Aguarda 5 segundos em tempo real
-                Thread.Sleep(5000);
-
-                // Avança o tempo simulado em 5 segundos
-                simulationTime = simulationTime.AddSeconds(5);
-
-                // Verifica se completou um dia (86400 segundos)
-                if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
-                {
-                    // Avança para o dia seguinte (as transições de mês e ano ocorrem automaticamente)
-                    simulationTime = simulationTime.Date.AddDays(1);
-                    string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                    
-                    // Grava a mensagem de início de novo dia no CSV
-                    string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                    sw.WriteLine(newDayMessage);
-                    sw.Flush();
-                    
-                    // Exibe também no console
-                    Console.WriteLine(newDayMessage);
-                }
+                // Exibe também no console
+                Console.WriteLine(newDayMessage);
             }
         }
     }
