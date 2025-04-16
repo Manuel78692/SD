@@ -61,7 +61,7 @@ public class SimuladorGPS
         return (finalLat, finalLon);
     }
     
-    public static async Task Start()
+    public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
         // Obtém a cidade e a região através do método definido no arquivo "gerarcidades"
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();
@@ -70,35 +70,30 @@ public class SimuladorGPS
         // Define a data de início da simulação: 1 de janeiro de 2025, 00:00:00
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
         
-        // Caminho para o CSV de saída (arquivo já existente, modo append)
-        string csvPath = "GPS.csv";
-        using (StreamWriter sw = new StreamWriter(csvPath, true))
+        // Loop de simulação: a cada 5 segundos (tempo real) atualiza e grava a localização GPS
+        while (true)
         {
-            // Loop de simulação: a cada 5 segundos (tempo real) atualiza e grava a localização GPS
-            while (true)
+            (double lat, double lon) = GetCoastalGPS(selectedCity, selectedRegion);
+            string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+            
+            
+            // string output = $"{wavy.WavyID}:{wavy.EstadoWavy}:[{lat:F6}, {lon:F6}]:{timestamp}";
+            string output = string.Format(CultureInfo.InvariantCulture, "{0:F6},{1:F6}:{2}", lat, lon, timestamp);
+            yield return output;
+            Console.WriteLine("GPS -- " + output);
+            
+            // await Task.Delay(5000);
+            simulationTime = simulationTime.AddSeconds(5);
+            
+            // Ao final de um dia (86400 segundos simulados), inicia o novo dia
+            if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
             {
-                (double lat, double lon) = GetCoastalGPS(selectedCity, selectedRegion);
-                string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                
-                
-                string output = $"Wavy_ID:Status:[{lat:F6}, {lon:F6}]:last_sync({timestamp})";
-                sw.WriteLine(output);
-                sw.Flush();
-                Console.WriteLine("GPS -- " + output);
-                
-                Thread.Sleep(5000);
-                simulationTime = simulationTime.AddSeconds(5);
-                
-                // Ao final de um dia (86400 segundos simulados), inicia o novo dia
-                if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
-                {
-                    simulationTime = simulationTime.Date.AddDays(1);
-                    string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                    string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                    sw.WriteLine(newDayMessage);
-                    sw.Flush();
-                    Console.WriteLine(newDayMessage);
-                }
+                simulationTime = simulationTime.Date.AddDays(1);
+                string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+                string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
+                // sw.WriteLine(newDayMessage);
+                // sw.Flush();
+                Console.WriteLine(newDayMessage);
             }
         }
     }

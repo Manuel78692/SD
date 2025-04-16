@@ -50,7 +50,7 @@ public class SimuladorGyro
     }
     
     // Classifica o estado da ondulação com base no valor (em metros).
-    static string ClassifySwell(double swell)
+    public static string ClassifySwell(double swell)
     {
         if (swell < 1.0)
             return "Calmo";
@@ -62,7 +62,7 @@ public class SimuladorGyro
             return "Muito Agitado";
     }
     
-    public static async Task Start()
+    public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
         // Obtém a cidade e a região através do método definido no arquivo "gerarcidades".
         
@@ -72,39 +72,31 @@ public class SimuladorGyro
         // Data de início da simulação: 1 de janeiro de 2025, 00:00:00
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
         
-        // Caminho para o CSV de saída
-        string csvPath = "Gyroscopio.csv";
-        using (StreamWriter sw = new StreamWriter(csvPath, true))
+        // Loop de simulação: a cada 5 segundos (tempo real) calcula e grava a ondulação,
+        // avançando 5 segundos na simulação. Ao final de um dia, inicia o novo dia.
+        while (true)
         {
-            // Loop de simulação: a cada 5 segundos (tempo real) calcula e grava a ondulação,
-            // avançando 5 segundos na simulação. Ao final de um dia, inicia o novo dia.
-            while (true)
+            double swell = SmoothRandomSwell(simulationTime);
+            string classification = ClassifySwell(swell);
+            string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+            
+            
+            string output = string.Format(CultureInfo.InvariantCulture, "{0:F2}:{1}", swell, timestamp);
+            
+            yield return output;
+            Console.WriteLine("Gyro -- " + output);
+            
+            // await Task.Delay(5000);
+            simulationTime = simulationTime.AddSeconds(5);
+            
+            // Ao final de um dia (86400 segundos simulados), inicia o dia seguinte
+            if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
             {
-                double swell = SmoothRandomSwell(simulationTime);
-                string classification = ClassifySwell(swell);
-                string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                
-               
-                string output = $"Wavy_ID:Status:[{swell:F2} m - {classification}]:last_sync({timestamp})";
-                
-                sw.WriteLine(output);
-                sw.Flush();
-                Console.WriteLine("Gyro -- " + output);
-                
-                Thread.Sleep(5000); // Aguarda 5 segundos em tempo real
-                simulationTime = simulationTime.AddSeconds(5);
-                
-                // Ao final de um dia (86400 segundos simulados), inicia o dia seguinte
-                if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
-                {
-                    simulationTime = simulationTime.Date.AddDays(1);
-                    string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                    string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                    
-                    sw.WriteLine(newDayMessage);
-                    sw.Flush();
-                    Console.WriteLine(newDayMessage);
-                }
+                simulationTime = simulationTime.Date.AddDays(1);
+                string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+                string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
+
+                Console.WriteLine(newDayMessage);
             }
         }
     }

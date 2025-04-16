@@ -158,7 +158,7 @@ public class SimuladorHumidade
         return Math.Round(hum, 2);
     }
 
-    public static async Task Start()
+    public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
         // Obtém a cidade e a região através do método presente no arquivo "gerarcidades"
        
@@ -169,33 +169,26 @@ public class SimuladorHumidade
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
         
 
-        using (StreamWriter sw = new StreamWriter("Humidade.csv", true))
+        // Loop da simulação: a cada 5 segundos (tempo real), calcula e grava a humidade,
+        // avançando o tempo simulado em 5 segundos. Ao final de um dia, inicia o novo dia.
+        while (true)
         {
-            // Loop da simulação: a cada 5 segundos (tempo real), calcula e grava a humidade,
-            // avançando o tempo simulado em 5 segundos. Ao final de um dia, inicia o novo dia.
-            while (true)
-            {
-                double hum = SmoothRandomHumidity(simulationTime, selectedRegion);
-                string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                string output = $"Wavy_ID:Status:[{hum:F2}]:last_sync({timestamp})";
-                
-                sw.WriteLine(output);
-                sw.Flush();
-                Console.WriteLine("Humidade -- " + output);
-                
-                Thread.Sleep(5000);
-                simulationTime = simulationTime.AddSeconds(5);
+            double hum = SmoothRandomHumidity(simulationTime, selectedRegion);
+            string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+            string output = $"Wavy_ID:Status:[{hum:F2}]:last_sync({timestamp})";
+            
+            yield return output;
+            Console.WriteLine("Humidade -- " + output);
+            
+            // await Task.Delay(5000);
+            simulationTime = simulationTime.AddSeconds(5);
 
-                if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
-                {
-                    simulationTime = simulationTime.Date.AddDays(1);
-                    string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                    string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                    
-                    sw.WriteLine(newDayMessage);
-                    sw.Flush();
-                    Console.WriteLine(newDayMessage);
-                }
+            if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
+            {
+                simulationTime = simulationTime.Date.AddDays(1);
+                string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+                string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
+                Console.WriteLine(newDayMessage);
             }
         }
     }

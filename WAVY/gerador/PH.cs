@@ -71,7 +71,7 @@ public class SimuladorPH
         return Math.Round(ph, 3);
     }
     
-    public static async Task Start()
+    public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
         // Obtém a cidade e a região através do método definido no arquivo "gerarcidades".
         
@@ -82,46 +82,47 @@ public class SimuladorPH
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
         
         // Abre o arquivo PH.csv em modo append (supondo que ele já exista)
-        using (StreamWriter sw = new StreamWriter("PH.csv", true))
+        // using (StreamWriter sw = new StreamWriter("PH.csv", true))
+
+
+        // Loop da simulação: a cada 5 segundos (tempo real), calcula e grava o pH,
+        // avançando 5 segundos no tempo simulado. Ao final de um dia, inicia o novo dia.
+        while (true)
         {
-            // Loop da simulação: a cada 5 segundos (tempo real), calcula e grava o pH,
-            // avançando 5 segundos no tempo simulado. Ao final de um dia, inicia o novo dia.
-            while (true)
+            // Calcula o pH para o instante atual na região selecionada
+            double ph = SmoothRandomPH(simulationTime, selectedRegion);
+            
+            // Formata o timestamp conforme "YYYY-MM-DD-HH-mm-ss"
+            string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+            
+    
+            string output = $"Wavy_ID:Status:[{ph:F3}]:last_sync({timestamp})";
+            
+            // Grava a mensagem no CSV
+            // sw.WriteLine(output);
+            // sw.Flush();
+            yield return output;
+            
+            // Exibe também no console para acompanhamento
+            Console.WriteLine("PH -- " + output);
+            
+            // Aguarda 5 segundos em tempo real
+            // await Task.Delay(5000);
+            
+            // Avança o tempo simulado em 5 segundos
+            simulationTime = simulationTime.AddSeconds(5);
+            
+            // Se tiver completado um dia (86400 segundos), inicia o próximo dia (o .NET faz a transição de dia, mês e ano)
+            if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
             {
-                // Calcula o pH para o instante atual na região selecionada
-                double ph = SmoothRandomPH(simulationTime, selectedRegion);
+                simulationTime = simulationTime.Date.AddDays(1);
+                string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
                 
-                // Formata o timestamp conforme "YYYY-MM-DD-HH-mm-ss"
-                string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+                string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
+                // sw.WriteLine(newDayMessage);
+                // sw.Flush();
                 
-      
-                string output = $"Wavy_ID:Status:[{ph:F3}]:last_sync({timestamp})";
-                
-                // Grava a mensagem no CSV
-                sw.WriteLine(output);
-                sw.Flush();
-                
-                // Exibe também no console para acompanhamento
-                Console.WriteLine("PH -- " + output);
-                
-                // Aguarda 5 segundos em tempo real
-                Thread.Sleep(5000);
-                
-                // Avança o tempo simulado em 5 segundos
-                simulationTime = simulationTime.AddSeconds(5);
-                
-                // Se tiver completado um dia (86400 segundos), inicia o próximo dia (o .NET faz a transição de dia, mês e ano)
-                if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
-                {
-                    simulationTime = simulationTime.Date.AddDays(1);
-                    string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                    
-                    string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                    sw.WriteLine(newDayMessage);
-                    sw.Flush();
-                    
-                    Console.WriteLine(newDayMessage);
-                }
+                Console.WriteLine(newDayMessage);
             }
         }
     }
