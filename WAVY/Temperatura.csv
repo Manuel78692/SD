@@ -1,25 +1,4 @@
-DataHora,Regiao,Cidade,Temperatura
-2025-01-01 00:00:00,Centro,Aveiro,4.35
-2025-01-01 01:00:00,Centro,Leiria,4.49
-2025-01-01 02:00:00,Centro,Leiria,5.07
-2025-01-01 03:00:00,Algarve,Faro,8.93
-2025-01-01 04:00:00,Alentejo,Beja,8.91
-2025-01-01 05:00:00,Alentejo,Setúbal Sul,9.61
-2025-01-01 06:00:00,Alentejo,Beja,11.21
-2025-01-01 07:00:00,Alentejo,Setúbal Sul,11.97
-2025-01-01 08:00:00,Centro,Leiria,11.59
-2025-01-01 09:00:00,Centro,Coimbra,12.98
-2025-01-01 10:00:00,Norte,Braga,12.06
-2025-01-01 11:00:00,Norte,Porto,13
-2025-01-01 12:00:00,Norte,Porto,12.51
-2025-01-01 13:00:00,Alentejo,Beja,16.26
-2025-01-01 14:00:00,Algarve,Faro,16.64
-2025-01-01 15:00:00,Norte,Braga,11.41
-2025-01-01 16:00:00,Alentejo,Beja,13.28
-2025-01-01 17:00:00,Centro,Aveiro,9.98
-2025-01-01 18:00:00,Norte,Porto,7.98
-2025-01-01 19:00:00,Alentejo,Beja,9.65
-2025-01-01 20:00:00,Centro,Aveiro,6.57
-2025-01-01 21:00:00,Lisboa,Setúbal Norte,6.77
-2025-01-01 22:00:00,Lisboa,Lisboa,5.29
-2025-01-01 23:00:00,Centro,Aveiro,3.81
+Wavy_ID:Status:[3,10]:last_sync(2025-01-01-00-00-00)
+Wavy_ID:Status:[3,17]:last_sync(2025-01-01-00-00-05)
+Wavy_ID:Status:[2,71]:last_sync(2025-01-01-00-00-10)
+Wavy_ID:Status:[3,12]:last_sync(2025-01-01-00-00-15)

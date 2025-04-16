@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Threading;
 using System.IO;
 
-public class PHSimulator
+public class SimuladorPH
 {
     static Random random = new Random();
     
@@ -71,7 +71,7 @@ public class PHSimulator
         return Math.Round(ph, 3);
     }
     
-    public static void Main(string[] args)
+    public static async Task Start()
     {
         // Obtém a cidade e a região através do método definido no arquivo "gerarcidades".
         
@@ -102,7 +102,7 @@ public class PHSimulator
                 sw.Flush();
                 
                 // Exibe também no console para acompanhamento
-                Console.WriteLine(output);
+                Console.WriteLine("PH -- " + output);
                 
                 // Aguarda 5 segundos em tempo real
                 Thread.Sleep(5000);

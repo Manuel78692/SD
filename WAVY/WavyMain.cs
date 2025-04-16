@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 class WavyMain
@@ -9,8 +10,20 @@ class WavyMain
     private static int Port = 5001;
     public static void Main()
     {
-        // Corre a lógica do Main assincronamente e espera por ela de forma síncrona
-        Task.Run(async () => await RunAsync()).Wait();
+        // Run async Main logic inside a Task and wait for it synchronously
+        //Task.Run(async () => await RunAsync()).Wait();
+
+        Thread gpsThread = new Thread(async () => await SimuladorGPS.Start());
+        Thread gyroThread = new Thread(async () => await SimuladorGyro.Start());
+        Thread humidadeThread = new Thread(async () => await SimuladorHumidade.Start());
+        Thread phThread = new Thread(async () => await SimuladorPH.Start());
+        Thread temperaturaThread = new Thread(async () => await SimuladorTemperatura.Start());
+        
+        gpsThread.Start();
+        gyroThread.Start();
+        humidadeThread.Start();
+        phThread.Start();
+        temperaturaThread.Start();
     }
 
     private static async Task RunAsync()

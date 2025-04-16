@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Threading;
 using System.IO;
 
-public class TemperatureYearSimulator
+public class SimuladorTemperatura
 {
     static Random random = new Random();
 
@@ -67,7 +67,7 @@ public class TemperatureYearSimulator
         return Math.Round(temp, 2);
     }
     
-    public static void Start()
+    public static async Task Start()
     {
         // Obtém a cidade e a região através do método presente no arquivo "gerarcidades"
       
@@ -99,7 +99,7 @@ public class TemperatureYearSimulator
                 sw.Flush(); // Garante que os dados sejam escritos imediatamente
                 
                 // Também exibe no console para acompanhamento
-                Console.WriteLine(output);
+                Console.WriteLine("Temp -- " + output);
 
                 // Aguarda 5 segundos em tempo real
                 Thread.Sleep(5000);

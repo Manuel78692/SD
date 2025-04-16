@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Threading;
 using System.Collections.Generic;
 
-public class CoastalAreaGPSSimulator
+public class SimuladorGPS
 {
     static Random random = new Random();
     
@@ -56,15 +56,14 @@ public class CoastalAreaGPSSimulator
         double noiseLat = (random.NextDouble() - 0.5) * 0.001; // variação em torno de ±0.0005
         double noiseLon = (random.NextDouble() - 0.5) * 0.001;
         
-        double finalLat = Math.Round(target.lat + noiseLat, 6);
-        double finalLon = Math.Round(target.lon + noiseLon, 6);
+        double finalLat = Math.Round(target.baseLat + noiseLat, 6);
+        double finalLon = Math.Round(target.baseLon + noiseLon, 6);
         return (finalLat, finalLon);
     }
     
-    public static void Start()
+    public static async Task Start()
     {
         // Obtém a cidade e a região através do método definido no arquivo "gerarcidades"
-        
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();
         Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
         
@@ -85,7 +84,7 @@ public class CoastalAreaGPSSimulator
                 string output = $"Wavy_ID:Status:[{lat:F6}, {lon:F6}]:last_sync({timestamp})";
                 sw.WriteLine(output);
                 sw.Flush();
-                Console.WriteLine(output);
+                Console.WriteLine("GPS -- " + output);
                 
                 Thread.Sleep(5000);
                 simulationTime = simulationTime.AddSeconds(5);

@@ -3,7 +3,7 @@ using System.IO;
 using System.Globalization;
 using System.Threading;
 
-public class WaveSwellByRandomCitySimulator
+public class SimuladorGyro
 {
     static Random random = new Random();
     
@@ -62,11 +62,11 @@ public class WaveSwellByRandomCitySimulator
             return "Muito Agitado";
     }
     
-    public static void Start()
+    public static async Task Start()
     {
         // Obtém a cidade e a região através do método definido no arquivo "gerarcidades".
-        /
-        (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();
+        
+        (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();       
         Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
         
         // Data de início da simulação: 1 de janeiro de 2025, 00:00:00
@@ -89,7 +89,7 @@ public class WaveSwellByRandomCitySimulator
                 
                 sw.WriteLine(output);
                 sw.Flush();
-                Console.WriteLine(output);
+                Console.WriteLine("Gyro -- " + output);
                 
                 Thread.Sleep(5000); // Aguarda 5 segundos em tempo real
                 simulationTime = simulationTime.AddSeconds(5);
