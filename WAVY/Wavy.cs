@@ -87,12 +87,13 @@ public class Wavy
 
                 bufferDados.Add(output);
             }
-            Console.WriteLine($"[{tipo}] Data added to list: {output}");
+            // Console.WriteLine($"[{tipo}] Data added to list: {output}");
         }
     }
     // ###################################################################################################################### //
     public async Task ReceberDados(List<TipoDado> tipoDados)
     {
+        Random random = new Random();
         // Create a list of enumerators – one per sensor type.
         var enumerators = new List<(TipoDado Tipo, IAsyncEnumerator<string> Enumerator)>();
 
@@ -147,12 +148,15 @@ public class Wavy
             bufferDados.Add(compositeOutput);
 
             // Print to console (or process/store further)
-            Console.WriteLine("Composite Data: " + compositeOutput);
+            // Console.WriteLine("Composite Data: " + compositeOutput);
 
             // Optionally, add a delay between iterations,
             // or let the simulators pace themselves with their own delays.
-            // For example: await Task.Delay(100); 
-            await Task.Delay(5000);
+
+            // Gera um atraso aleatório, para simular a leitura dos sensores
+            // Em .Next, o primeiro parâmetro é inclusivo e o segundo é exclusivo.
+            int delay = random.Next(100, 201);
+            await Task.Delay(delay);
         }
     }
     
@@ -164,7 +168,7 @@ public class Wavy
         {
             // Envia o bloco de dados para o agregador
             // EnviarBloco();
-            Console.WriteLine("List ::");
+            Console.WriteLine(WavyID + " List ::");
             foreach (string element in bufferDados)
             {
                 Console.WriteLine("| List - " + element);

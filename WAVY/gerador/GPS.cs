@@ -80,7 +80,7 @@ public class SimuladorGPS
             // string output = $"{wavy.WavyID}:{wavy.EstadoWavy}:[{lat:F6}, {lon:F6}]:{timestamp}";
             string output = string.Format(CultureInfo.InvariantCulture, "{0:F6},{1:F6}:{2}", lat, lon, timestamp);
             yield return output;
-            Console.WriteLine("GPS -- " + output);
+            // Console.WriteLine("GPS -- " + output);
             
             // await Task.Delay(5000);
             simulationTime = simulationTime.AddSeconds(5);

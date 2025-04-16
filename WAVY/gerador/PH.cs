@@ -94,9 +94,7 @@ public class SimuladorPH
             
             // Formata o timestamp conforme "YYYY-MM-DD-HH-mm-ss"
             string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-            
-    
-            string output = $"Wavy_ID:Status:[{ph:F3}]:last_sync({timestamp})";
+            string output = string.Format(CultureInfo.InvariantCulture, "{0:F2}:{1}", ph, timestamp);
             
             // Grava a mensagem no CSV
             // sw.WriteLine(output);
@@ -104,7 +102,7 @@ public class SimuladorPH
             yield return output;
             
             // Exibe também no console para acompanhamento
-            Console.WriteLine("PH -- " + output);
+            // Console.WriteLine("PH -- " + output);
             
             // Aguarda 5 segundos em tempo real
             // await Task.Delay(5000);

@@ -38,8 +38,8 @@ public class RandomCityRegion
         string regionForCity = cityToRegion[selectedCity];
 
         // Exibe o resultado
-        Console.WriteLine("Cidade escolhida: {0}", selectedCity);
-        Console.WriteLine("Pertence à região: {0}", regionForCity);
+        // Console.WriteLine("Cidade escolhida: {0}", selectedCity);
+        // Console.WriteLine("Pertence à região: {0}", regionForCity);
 
         return (selectedCity, regionForCity);
     }

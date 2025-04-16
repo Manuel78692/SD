@@ -175,10 +175,10 @@ public class SimuladorHumidade
         {
             double hum = SmoothRandomHumidity(simulationTime, selectedRegion);
             string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-            string output = $"Wavy_ID:Status:[{hum:F2}]:last_sync({timestamp})";
+            string output = string.Format(CultureInfo.InvariantCulture, "{0:F2}:{1}", hum, timestamp);
             
             yield return output;
-            Console.WriteLine("Humidade -- " + output);
+            // Console.WriteLine("Humidade -- " + output);
             
             // await Task.Delay(5000);
             simulationTime = simulationTime.AddSeconds(5);

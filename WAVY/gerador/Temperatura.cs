@@ -89,14 +89,14 @@ public class SimuladorTemperatura
             
             // Formata a mensagem de saída conforme:
             // Wavy_ID:Status:[temperatura]:last_sync(YYYY-MM-DD-HH-mm-ss)
-            string output = $"Wavy_ID:Status:[{temp:F2}]:last_sync({timestamp})";
+            string output = string.Format(CultureInfo.InvariantCulture, "{0:F2}:{1}", temp, timestamp);
             yield return output;
             
             // Também exibe no console para acompanhamento
-            Console.WriteLine("Temp -- " + output);
+            // Console.WriteLine("Temp -- " + output);
 
             // Aguarda 5 segundos em tempo real
-            Thread.Sleep(5000);
+            // Thread.Sleep(5000);
 
             // Avança o tempo simulado em 5 segundos
             simulationTime = simulationTime.AddSeconds(5);
