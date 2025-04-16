@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-class RandomCityRegion
+public class RandomCityRegion
 {
-    static void Main(string[] args)
+    public static (string,string) GetRandomCityAndRegion()
     {
         // Define o dicionário que mapeia as regiões aos seus grupos de cidades.
         // Esses dados podem ser armazenados em um arquivo externo, mas aqui os definimos diretamente.
@@ -40,5 +40,7 @@ class RandomCityRegion
         // Exibe o resultado
         Console.WriteLine("Cidade escolhida: {0}", selectedCity);
         Console.WriteLine("Pertence à região: {0}", regionForCity);
+
+        return (selectedCity, regionForCity);
     }
 }

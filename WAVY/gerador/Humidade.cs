@@ -3,7 +3,7 @@ using System.IO;
 using System.Globalization;
 using System.Threading;
 
-public class HumidityYearSimulator
+public class SimuladorHumidade
 {
     static Random random = new Random();
 
@@ -158,7 +158,7 @@ public class HumidityYearSimulator
         return Math.Round(hum, 2);
     }
 
-    public static void Start()
+    public static async Task Start()
     {
         // Obtém a cidade e a região através do método presente no arquivo "gerarcidades"
        
@@ -181,7 +181,7 @@ public class HumidityYearSimulator
                 
                 sw.WriteLine(output);
                 sw.Flush();
-                Console.WriteLine(output);
+                Console.WriteLine("Humidade -- " + output);
                 
                 Thread.Sleep(5000);
                 simulationTime = simulationTime.AddSeconds(5);

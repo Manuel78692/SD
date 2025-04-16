@@ -3,7 +3,7 @@ using System.Globalization;
 
 public class WavyStateManager
 {
-    public static void Main(string[] args)
+    public static void Start()
     {
         // Exibe a mensagem de solicitação ao administrador.
         Console.WriteLine("Deseja que o wavy fique ativo ou desativado?");
