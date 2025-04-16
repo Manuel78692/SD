@@ -7,12 +7,8 @@ using System.Globalization;
 
 class Servidor
 {
+    // Porta para escutar as conexões dos AGREGADORes
     private static readonly int Port = 5000;
-    private static readonly object fileLock = new object();
-    private static readonly string dataFolder = "data";
-    private static readonly string[] tiposValidos = {
-        "Humidade", "Temperatura", "PH", "Acelerometro", "Gyroscopio", "GPS", "Timestamp"
-    };
 
     public static void Main()
     {
@@ -36,9 +32,7 @@ class Servidor
             {
                 TcpClient client = listener.AcceptTcpClient();
                 Console.WriteLine("Conexão recebida.");
-
-                // Inicia uma nova thread para tratar a conexão
-                Thread clientThread = new Thread(() => ProcessClient(client));
+                Thread clientThread = new Thread(() => ProcessaCliente(client));
                 clientThread.Start();
             }
             catch (Exception ex)
@@ -48,26 +42,7 @@ class Servidor
         }
     }
 
-    private static void InitializeCSVs()
-    {
-        lock (fileLock)
-        {
-            // Verifica a existência e inicia cada ficheiro CSV
-            foreach (string tipo in tiposValidos)
-            {
-                string path = Path.Combine(dataFolder, tipo + ".csv");
-                if (!File.Exists(path))
-                {
-                    using (StreamWriter sw = new StreamWriter(path))
-                    {
-                        sw.WriteLine("WAVY_ID,Dado,TimestampRecebido,TimestampFormatado");
-                    }
-                }
-            }
-        }
-    }
-
-    private static void ProcessClient(TcpClient client)
+    private static void ProcessaCliente(TcpClient client)
     {
         try
         {
@@ -78,54 +53,33 @@ class Servidor
                 using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                 {
                     // Lê a mensagem única enviada pelo cliente
-                    string mensagemRecebida = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(mensagemRecebida))
+                    string header = reader.ReadLine();
+                    if (!string.IsNullOrEmpty(header))
                     {
-                        Console.WriteLine("Mensagem recebida: " + mensagemRecebida);
+                        Console.WriteLine("Header recebido: " + header);
 
-                        // Espera-se o formato: WAVY_ID:TIPO:DADO:TIMESTAMP
-                        string[] partes = mensagemRecebida.Split(':');
-                        if (partes.Length == 4)
+                        if (header != null && header.StartsWith("BLOCK"))
                         {
-                            string wavyId = partes[0].Trim();
-                            string tipo = partes[1].Trim();
-                            string dado = partes[2].Trim();
-                            string timestampOriginal = partes[3].Trim();
-
-                            if (Array.Exists(tiposValidos, t => t.Equals(tipo, StringComparison.OrdinalIgnoreCase)))
+                            string[] partes = header.Split(' ');
+                            if (partes.Length == 4 && int.TryParse(partes[1], out int numLinhas) && partes[2] == "TYPE") 
                             {
-                                DateTime timestamp;
-                                if (!DateTime.TryParse(timestampOriginal, CultureInfo.InvariantCulture, DateTimeStyles.None, out timestamp))
-                                {
-                                    Console.WriteLine("Timestamp inválido. Usando a hora atual.");
-                                    timestamp = DateTime.Now;
-                                }
-
-                                string timestampFormatado = timestamp.ToString("yyyy-MM-dd HH:mm:ss");
-                                string linhaCSV = $"{wavyId},{dado},{timestampOriginal},{timestampFormatado}";
-                                string caminhoCSV = Path.Combine(dataFolder, tipo + ".csv");
-
-                                lock (fileLock)
-                                {
-                                    using (StreamWriter sw = new StreamWriter(caminhoCSV, true))
-                                    {
-                                        sw.WriteLine(linhaCSV);
-                                    }
-                                }
-
-                                writer.WriteLine("ACK");
-                                Console.WriteLine($"Dado '{tipo}' gravado com sucesso em {tipo}.csv");
+                                string[] bloco = new string[numLinhas];
+                                for (int i = 0; i < numLinhas; i++)
+                                    bloco[i] = reader.ReadLine();
+                                
+                                // Agora, 'bloco' contém todas as linhas enviadas pelo AGREGADOR.
+                                Console.WriteLine("Bloco de dados recebido:");
+                                foreach (string linha in bloco)
+                                    Console.WriteLine(linha);
                             }
-                            else
-                            {
-                                Console.WriteLine("Tipo de dado inválido.");
-                                writer.WriteLine("ERRO: Tipo inválido.");
-                            }
+                            
+                            // Envia o ACK para confirmar o recebimento
+                            writer.WriteLine("ACK");
+                            Console.WriteLine("ACK enviado. Encerrando conexão.");
                         }
                         else
                         {
-                            Console.WriteLine("Formato de mensagem incorreto.");
-                            writer.WriteLine("ERRO: Formato inválido.");
+                            Console.WriteLine("Formato de header inválido.");
                         }
                     }
                 }
