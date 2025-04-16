@@ -155,7 +155,7 @@ public class Wavy
 
             // Gera um atraso aleatório, para simular a leitura dos sensores
             // Em .Next, o primeiro parâmetro é inclusivo e o segundo é exclusivo.
-            int delay = random.Next(100, 201);
+            int delay = random.Next(1000, 2010);
             await Task.Delay(delay);
         }
     }

@@ -1,32 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj": {}
+    "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj": {
+    "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj",
+        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
         "projectName": "WAVY",
-        "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj",
-        "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\obj\\",
+        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
+        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
+        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\ruipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -61,12 +54,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.14, 8.0.14]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[8.0.14, 8.0.14]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.14, 8.0.14]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
