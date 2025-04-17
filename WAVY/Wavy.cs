@@ -171,13 +171,9 @@ public class Wavy
                     // Aguarda o ACK do AGREGADOR
                     string resposta = reader.ReadLine();
                     if (resposta == "ACK")
-                    {
                         Console.WriteLine("ACK recebido. Bloco enviado com sucesso.");
-                    }
                     else
-                    {
                         Console.WriteLine("Resposta inesperada: " + resposta);
-                    }
                 }
             }
         }

@@ -8,39 +8,49 @@ using System.Globalization;
 
 class Agregador
 {
-    private string AgregadorID;
-    // Porta para escutar as conexões das WAVYs
-    private readonly int PortWavy;
+    // Id to AGREGADOR
+    private string id;
+
+    // Porta do AGREGADOR para escutar as conexões das WAVYs
+    private readonly int port;
+
     // Ip do SERVIDOR
-    private readonly string ServidorIP;
-    // Porta para enviar os dados para o SERVIDOR
-    private readonly int PortServidor;
+    private readonly string servidorIp;
+
+    // Porta do SERVIDOR
+    private readonly int servidorPort;
+
+    // Pasta onde irá guardar os dados
     private readonly string dataFolder = "dados";
-    private readonly Mutex wavysFileMutex = new Mutex();   
+
+    // Ficheiro CSV onde irá guardar os dados
     private string? agregadorFilePath;
 
-    public Agregador(string id, int listenPort, string serverIp, int serverPort)
+    // Mutex para garantir a exclusão mútua ao escrever no arquivo CSV
+    private readonly Mutex wavysFileMutex = new Mutex();   
+    
+    public Agregador(string _id, int _port, string _servidorIp, int _servidorPort)
     {
-        AgregadorID = id;
-        PortWavy = listenPort;
-        ServidorIP = serverIp;
-        PortServidor = serverPort;
+        id = _id;
+        port = _port;
+        servidorIp = _servidorIp;
+        servidorPort = _servidorPort;
     }
 
     public void Run()
     {
-        // Verifica se a pasta "data" existe
+        // Verifica se a pasta "dados" existe
         if (!Directory.Exists(dataFolder))
         {
-            Console.WriteLine("Erro: Pasta 'dados/' não existe.");
+            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.");
             return;
         }
 
         InitializeCSV();
 
-        TcpListener listener = new TcpListener(IPAddress.Any, PortWavy);
+        TcpListener listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
-        Console.WriteLine("Agregador iniciado na porta " + PortWavy + ". Aguardando conexões das WAVYs...");
+        Console.WriteLine("Agregador iniciado na porta " + port + ". Aguardando conexões das WAVYs...");
 
         while (true)
         {
@@ -58,14 +68,15 @@ class Agregador
         }
     }
 
+    // Esta função cria o ficheiro CSV do AGREGADOR, se não existir
     private void InitializeCSV()
     {
-        // Check if the file "wavys.csv" exists in the "dados" folder
-        agregadorFilePath = $"wavys_{AgregadorID}.csv";
+        // Verifica se o ficheiro "wavys_{id}.csv" existe na pasta "dados"
+        agregadorFilePath = $"wavys_{id}.csv";
         string filePath = Path.Combine(dataFolder, agregadorFilePath);
         if (!File.Exists(filePath))
         {
-            // Cria o arquivo "wavys.csv" com um cabeçalho inicial
+            // Cria o arquivo "wavys_{id}.csv" com um cabeçalho inicial
             using (StreamWriter writer = new StreamWriter(filePath))
             {
                 writer.WriteLine("WAVY_ID:status:[data_types]:last_sync");
@@ -74,6 +85,7 @@ class Agregador
         }
     }
 
+    // Esta função processa os dados recebidos das WAVYs
     private void ProcessaWavy(TcpClient client)
     {
         try
@@ -94,12 +106,16 @@ class Agregador
                         string[] partes = header.Split(' ');
                         if (partes.Length == 4 && int.TryParse(partes[1], out int numLinhas) && partes[2] == "STATUS")
                         {
+                            // Variável que guarda o estado atual da WAVY
                             string status = partes[3];
+
+                            // Variável que irá guardar o bloco de mensagens enviadas pela WAVY
                             string[] bloco = new string[numLinhas];
                             for (int i = 0; i < numLinhas; i++)
                                 bloco[i] = reader.ReadLine();
                             
                             // Agora, 'bloco' contém todas as linhas enviadas pela WAVY.
+                            // Debug : Faz print do bloco de dados recebido
                             Console.WriteLine("Bloco de dados recebido:");
                             foreach (string linha in bloco)
                                 Console.WriteLine(linha);
@@ -141,14 +157,12 @@ class Agregador
             não lê o ficheiro
 
             Antes de enviar para o servidor, convém guardar o estado e o 'last sync' do WAVY conectado
-            No ficheiro "wavys.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
-
-            O AGREGADOR também deve atualizar o estado da WAVY
+            No ficheiro "wavys_{id}.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
             Neste momento, os estados são: Ativo, Desativo
         */
 
         // Dicionário para armazenar listas para cada tipo de dado
-        Dictionary<string, List<string>> sensorData = new Dictionary<string, List<string>>();
+        Dictionary<string, List<string>> dadosSensor = new Dictionary<string, List<string>>();
 
         // Data the último sync do WAVY (DateTime.Now)
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
@@ -156,7 +170,6 @@ class Agregador
 
         foreach (string linha in bloco)
         {
-            
             // Extrai o ID da WAVY e os dados
             string[] partes = linha.Split('[',']');
             string dataLeitura = partes[2].Trim(':'); // Data de leitura dos sensores
@@ -171,30 +184,35 @@ class Agregador
                 string data = tipoDado[1].Trim(); // Valor do dado
 
                 // Se a lista para este tipo de dado não existir, cria-a
-                if (!sensorData.ContainsKey(dataType))
-                    sensorData[dataType] = new List<string>();
+                if (!dadosSensor.ContainsKey(dataType))
+                    dadosSensor[dataType] = new List<string>();
 
                 // Adiciona o dado à lista apropriada
-                sensorData[dataType].Add(wavyId + ":" + data + ":" + dataLeitura);
+                // Cada linha será do tipo "WAVY_ID:data:date_of_reading"
+                dadosSensor[dataType].Add(wavyId + ":" + data + ":" + dataLeitura);
             }
         }
 
         // Debug: Faz print dos dados separados por tipo
-        // foreach (var entry in sensorData)
+        // foreach (var entry in dadosSensor)
         // {
         //     Console.WriteLine($"Tipo de dado: {entry.Key}");
         //     foreach (var data in entry.Value)
         //         Console.WriteLine($"  Dado: {data}");
         // }
 
-        string tipos = string.Join(":", sensorData.Keys);
+        // Variável guarda todos os tipos de variável enviados pela WAVY separados por ":"
+        string tipos = string.Join(":", dadosSensor.Keys);
+
+        // Variável indica a linha que o AGREGADOR deve guardar no ficheiro
         string linhaCSV = $"{wavyId}:{status}:[{tipos}]:{timestamp}";
 
         string filePath = Path.Combine(dataFolder, agregadorFilePath);
+
         wavysFileMutex.WaitOne();
         try
         {
-            // Append the new line to the CSV file
+            // Guarda a linha no ficheiro CSV
             using (StreamWriter writer = new StreamWriter(filePath, append: true))
             {
                 writer.WriteLine(linhaCSV);
@@ -210,8 +228,10 @@ class Agregador
             wavysFileMutex.ReleaseMutex();
         }
 
-        EncaminhaParaServidor(sensorData);
+        EncaminhaParaServidor(dadosSensor);
     }
+
+    // Esta função encaminha cada bloco de dados, separados por tipo de dados, para o servidor
     private void EncaminhaParaServidor(Dictionary<string, List<string>> dados)
     {
         // No servidor, existem ficheiros .csv para cada tipo de dados
@@ -226,20 +246,22 @@ class Agregador
         {
             foreach (var entry in dados)
             {
-                using (TcpClient clienteServidor = new TcpClient(ServidorIP, PortServidor))
+                using (TcpClient clienteServidor = new TcpClient(servidorIp, servidorPort))
                 {
                     NetworkStream stream = clienteServidor.GetStream();
                     using (StreamReader reader = new StreamReader(stream))
                     using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                     {
-                        // Envia os dados para o Servidor
+                        // Variável que guarda o tipo de dado atual
                         string tipoDado = entry.Key;
+
+                        // Variável que guarda os valores dos dados associados ao tipo
                         List<string> valores = entry.Value;
 
                         // Envia o header com o tipo de dado
                         writer.WriteLine("BLOCK " + valores.Count + " TYPE " + tipoDado);
 
-                        // Envia os dados da WAVY
+                        // Envia os dados
                         foreach (string valor in valores)
                             writer.WriteLine(valor);
 
@@ -247,6 +269,8 @@ class Agregador
                         string resposta = reader.ReadLine();
                         if (resposta == "ACK")
                             Console.WriteLine("ACK recebido do Servidor.");
+                        else
+                            Console.WriteLine("Resposta inesperada: " + resposta);
                     }
                 }
             }
