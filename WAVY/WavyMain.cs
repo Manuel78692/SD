@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 class WavyMain
 {
     private static string AgregadorIP = "127.0.0.1";
-    private static int Port = 5001;
     public static void Main()
     {
         // Run async Main logic inside a Task and wait for it synchronously
@@ -14,8 +13,8 @@ class WavyMain
 
     private static async Task RunAsync()
     {
-        Wavy Wavy01 = new Wavy(AgregadorIP, Port, "WAVY01");
-        Wavy Wavy02 = new Wavy(AgregadorIP, Port, "WAVY02");
+        Wavy Wavy01 = new Wavy(AgregadorIP, 5001, "WAVY01");
+        Wavy Wavy02 = new Wavy(AgregadorIP, 5002, "WAVY02");
         // Wavy Wavy03 = new Wavy(AgregadorIP, Port, "WAVY03");
         // Wavy Wavy04 = new Wavy(AgregadorIP, Port, "WAVY04");
 

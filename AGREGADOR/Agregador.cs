@@ -8,17 +8,26 @@ using System.Globalization;
 
 class Agregador
 {
+    private string AgregadorID;
     // Porta para escutar as conexões das WAVYs
-    private static readonly int PortWavy = 5001;
+    private readonly int PortWavy;
     // Ip do SERVIDOR
-    private static readonly string ServidorIP = "127.0.0.1";
+    private readonly string ServidorIP;
     // Porta para enviar os dados para o SERVIDOR
-    private static readonly int PortServidor = 5000;
-    private static readonly string dataFolder = "dados";
-    private static readonly string wavys = "wavys.csv";
-    private static readonly Mutex wavysFileMutex = new Mutex();
+    private readonly int PortServidor;
+    private readonly string dataFolder = "dados";
+    private readonly Mutex wavysFileMutex = new Mutex();   
+    private string? agregadorFilePath;
 
-    public static void Main()
+    public Agregador(string id, int listenPort, string serverIp, int serverPort)
+    {
+        AgregadorID = id;
+        PortWavy = listenPort;
+        ServidorIP = serverIp;
+        PortServidor = serverPort;
+    }
+
+    public void Run()
     {
         // Verifica se a pasta "data" existe
         if (!Directory.Exists(dataFolder))
@@ -49,10 +58,11 @@ class Agregador
         }
     }
 
-    private static void InitializeCSV()
+    private void InitializeCSV()
     {
         // Check if the file "wavys.csv" exists in the "dados" folder
-        string filePath = Path.Combine(dataFolder, wavys);
+        agregadorFilePath = $"wavys_{AgregadorID}.csv";
+        string filePath = Path.Combine(dataFolder, agregadorFilePath);
         if (!File.Exists(filePath))
         {
             // Cria o arquivo "wavys.csv" com um cabeçalho inicial
@@ -60,11 +70,11 @@ class Agregador
             {
                 writer.WriteLine("WAVY_ID:status:[data_types]:last_sync");
             }
-            Console.WriteLine($"Arquivo '{wavys}' criado na pasta '{dataFolder}'.");
+            Console.WriteLine($"Arquivo '{agregadorFilePath}' criado na pasta '{dataFolder}'.");
         }
     }
 
-    private static void ProcessaWavy(TcpClient client)
+    private void ProcessaWavy(TcpClient client)
     {
         try
         {
@@ -114,7 +124,7 @@ class Agregador
             Console.WriteLine("Erro ao processar bloco: " + ex.Message);
         }
     }
-    private static void ProcessaBloco(string[] bloco, string status)
+    private void ProcessaBloco(string[] bloco, string status)
     {
         /*
             Cada linha do WAVY vem no formato seguinte: "WAVY_ID:[data_type=data]:date_of_reading"
@@ -180,7 +190,7 @@ class Agregador
         string tipos = string.Join(":", sensorData.Keys);
         string linhaCSV = $"{wavyId}:{status}:[{tipos}]:{timestamp}";
 
-        string filePath = Path.Combine(dataFolder, wavys);
+        string filePath = Path.Combine(dataFolder, agregadorFilePath);
         wavysFileMutex.WaitOne();
         try
         {
@@ -189,7 +199,7 @@ class Agregador
             {
                 writer.WriteLine(linhaCSV);
             }
-            Console.WriteLine($"Estado da WAVY atualizado no arquivo '{wavys}'.");
+            Console.WriteLine($"Estado da WAVY atualizado no arquivo '{filePath}'.");
         }
         catch (Exception ex)
         {
@@ -202,7 +212,7 @@ class Agregador
 
         EncaminhaParaServidor(sensorData);
     }
-    private static void EncaminhaParaServidor(Dictionary<string, List<string>> dados)
+    private void EncaminhaParaServidor(Dictionary<string, List<string>> dados)
     {
         // No servidor, existem ficheiros .csv para cada tipo de dados
         // O que o AGREGADOR deverá fazer é enviar os dados separados por tipo de dados
