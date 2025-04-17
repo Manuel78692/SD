@@ -29,6 +29,9 @@ public class Wavy
 
     // Port do AGREGADOR associado
     private int agregadorPort;
+    
+    // Lista de sensores que o WAVY tem
+    private List<TipoDado> tipoDados = new List<TipoDado>();
 
     // Estado da WAVY
     public Estado estadoWavy = Estado.Ativo;
@@ -39,18 +42,23 @@ public class Wavy
     // Tamanho máximo do buffer
     private const int MaxBufferSize = 5; 
 
+    // Para mandar os logs ao WavyMain
+    // Invés Console.Log, usa-se OnDataBlockReady?.Invoke
+    public event Action<string>? OnDataBlockReady;
+
     // Construtor da WAVY
-    public Wavy(string _id, string _agregadorIp, int _agregadorPort)
+    public Wavy(string _id, string _agregadorIp, int _agregadorPort, List<TipoDado> _tipoDados)
     {
         id = _id;
         agregadorIp = _agregadorIp;
         agregadorPort = _agregadorPort;
+        tipoDados = _tipoDados;
         bufferDados = new List<string>();
     }
 
     //Esta função recebe dados dos sensores.
     //Ou seja, utiliza os simuladores de sensores (na pasta geradores) para simular leitura de dados em tempo real.
-    public async Task ReceberDados(List<TipoDado> tipoDados)
+    public async Task ReceberDados(CancellationToken token = default)
     {
         Random random = new Random();
         // Cria uma lista de enumeradores, uma por tipo de sensor
@@ -68,13 +76,19 @@ public class Wavy
             }
             else
             {
-                Console.WriteLine($"Nenhum simulador encontrado para o tipo: {tipo}");
+                OnDataBlockReady?.Invoke($"Nenhum simulador encontrado para o tipo: {tipo}");
             }
         }
 
         // Inicia o loop da simulação dos sensores
-        while (true)
+        while (!token.IsCancellationRequested)
         {
+            if (estadoWavy != Estado.Ativo)
+            {
+                OnDataBlockReady?.Invoke($"{id} não ativada");
+                await Task.Delay(500, token);
+                continue;
+            }
             // Lista que contém todos os valores do enumeradores
             var valoresSensor = new List<string>();
 
@@ -86,7 +100,7 @@ public class Wavy
                 bool hasNext = await Enumerador.MoveNextAsync();
                 if (!hasNext)
                 {
-                    Console.WriteLine($"O simulador para {Tipo} terminou.");
+                    OnDataBlockReady?.Invoke($"O simulador para {Tipo} terminou.");
                     return;
                 }
 
@@ -107,7 +121,7 @@ public class Wavy
 
             // Se a lista ultrapassar o tamanho máximo, chama a função GerirLista
             if (bufferDados.Count >= MaxBufferSize)
-                    GerirLista();
+                GerirLista();
             
             // Adiciona a lista ao bufferDados
             bufferDados.Add(compositeOutput);
@@ -115,7 +129,7 @@ public class Wavy
             // Gera um atraso aleatório, para simular a leitura dos sensores
             // Em .Next, o primeiro parâmetro é inclusivo e o segundo é exclusivo.
             // int delay = random.Next(100, 201);
-            await Task.Delay(500);
+            await Task.Delay(500, token);
         }
     }
     
@@ -129,10 +143,10 @@ public class Wavy
             EnviarBloco();
 
             // Debug : Faz print da lista
-            Console.WriteLine(id + " List :");
+            OnDataBlockReady?.Invoke(id + " List :");
             foreach (string element in bufferDados)
             {
-                Console.WriteLine("| List - " + element);
+                OnDataBlockReady?.Invoke("| List - " + element);
             }
 
             // Limpa o buffer após enviar
@@ -160,7 +174,7 @@ public class Wavy
 
                     // Debug : Faz print do header
                     writer.WriteLine(header);
-                    Console.WriteLine("Enviado header: " + header);
+                    OnDataBlockReady?.Invoke("Enviado header: " + header);
 
                     // Envia cada linha do bloco
                     foreach (string linha in bufferDados)
@@ -171,15 +185,15 @@ public class Wavy
                     // Aguarda o ACK do AGREGADOR
                     string resposta = reader.ReadLine();
                     if (resposta == "ACK")
-                        Console.WriteLine("ACK recebido. Bloco enviado com sucesso.");
+                        OnDataBlockReady?.Invoke("ACK recebido. Bloco enviado com sucesso.");
                     else
-                        Console.WriteLine("Resposta inesperada: " + resposta);
+                        OnDataBlockReady?.Invoke("Resposta inesperada: " + resposta);
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao enviar bloco: " + ex.Message);
+            OnDataBlockReady?.Invoke("Erro ao enviar bloco: " + ex.Message);
         }
     }
      // ###################################################################################################################### //
@@ -213,7 +227,7 @@ public class Wavy
             }
             else
             {
-                Console.WriteLine($"Nenhum simulador encontrado para o tipo: {tipo}");
+                OnDataBlockReady?.Invoke($"Nenhum simulador encontrado para o tipo: {tipo}");
             }
         }
 
@@ -231,7 +245,7 @@ public class Wavy
 
                 bufferDados.Add(output);
             }
-            // Console.WriteLine($"[{tipo}] Data added to list: {output}");
+            // OnDataBlockReady?.Invoke($"[{tipo}] Data added to list: {output}");
         }
     }
     // ###################################################################################################################### //

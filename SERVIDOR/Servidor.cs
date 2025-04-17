@@ -25,7 +25,7 @@ class Servidor
         // Verifica se a pasta "dados" existe
         if (!Directory.Exists(dataFolder))
         {
-            Console.WriteLine("Erro: Pasta 'data/' não existe.");
+            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.");
             return;
         }
 
