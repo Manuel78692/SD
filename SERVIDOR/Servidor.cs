@@ -25,7 +25,7 @@ class Servidor
         // Verifica se a pasta "dados" existe
         if (!Directory.Exists(dataFolder))
         {
-            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.");
+            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.\n");
             return;
         }
 
@@ -33,7 +33,7 @@ class Servidor
 
         TcpListener listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
-        Console.WriteLine("Servidor iniciado. Aguardando conexões...");
+        Console.WriteLine("Servidor iniciado. Aguardando conexões...\n");
 
         while (true)
         {
@@ -46,7 +46,7 @@ class Servidor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message);
+                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message + "\n");
             }
         }
     }
@@ -109,12 +109,12 @@ class Servidor
 
                                 // Envia o ACK para confirmar o recebimento do bloco
                                 writer.WriteLine("ACK");
-                                Console.WriteLine("ACK enviado. Encerrando conexão.");
+                                Console.WriteLine("ACK enviado ao AGREGADOR.\n");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Formato de header inválido.");
+                            Console.WriteLine("Formato de header inválido.\n");
                         }
                     }
                 }
@@ -122,7 +122,7 @@ class Servidor
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao processar conexão: " + ex.Message);
+            Console.WriteLine("Erro ao processar conexão: " + ex.Message + "\n");
         }
     }
     private static void ProcessaBloco(string[] bloco, string tipo)

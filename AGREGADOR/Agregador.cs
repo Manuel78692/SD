@@ -42,7 +42,7 @@ class Agregador
         // Verifica se a pasta "dados" existe
         if (!Directory.Exists(dataFolder))
         {
-            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.");
+            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.\n");
             return;
         }
 
@@ -57,13 +57,13 @@ class Agregador
             try
             {
                 TcpClient client = listener.AcceptTcpClient();
-                Console.WriteLine("Conexão de uma WAVY recebida.");
+                Console.WriteLine("Conexão de uma WAVY recebida.\n");
                 Thread clientThread = new Thread(() => ProcessaWavy(client));
                 clientThread.Start();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message);
+                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message + "\n");
             }
         }
     }
@@ -125,11 +125,11 @@ class Agregador
 
                             // Envia ACK para confirmar o recebimento do bloco
                             writer.WriteLine("ACK");
-                            Console.WriteLine("ACK enviado à WAVY.");
+                            Console.WriteLine("ACK enviado à WAVY.\n");
                         }
                         else
                         {
-                            Console.WriteLine("Formato de header inválido.");
+                            Console.WriteLine("Formato de header inválido.\n");
                         }
                     }
                 }
@@ -137,7 +137,7 @@ class Agregador
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao processar bloco: " + ex.Message);
+            Console.WriteLine("Erro ao processar bloco: " + ex.Message + "\n");
         }
     }
     private void ProcessaBloco(string[] bloco, string status)
@@ -268,9 +268,9 @@ class Agregador
                         // Aguarda ACK do Servidor
                         string resposta = reader.ReadLine();
                         if (resposta == "ACK")
-                            Console.WriteLine("ACK recebido do Servidor.");
+                            Console.WriteLine("ACK recebido do Servidor.\n");
                         else
-                            Console.WriteLine("Resposta inesperada: " + resposta);
+                            Console.WriteLine("Resposta inesperada: " + resposta + "\n");
                     }
                 }
             }
@@ -278,7 +278,7 @@ class Agregador
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao encaminhar dados para o Servidor: " + ex.Message);
+            Console.WriteLine("Erro ao encaminhar dados para o Servidor: " + ex.Message + "\n");
         }
     }
 }
