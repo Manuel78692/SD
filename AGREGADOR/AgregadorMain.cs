@@ -6,6 +6,7 @@ class AgregadorMain
 {
     // Ip do SERVIDOR
     private static string servidorIp = "127.0.0.1";
+    
     // Porta para enviar os dados para o SERVIDOR
     private static int servidorPort = 5000;
 

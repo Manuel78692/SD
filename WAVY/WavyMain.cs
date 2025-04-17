@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 class WavyMain
 {
+    // Ip dos AGREGADORES
     private static string agregadorIp = "127.0.0.1";
     public static void Main()
     {
-        // Run async Main logic inside a Task and wait for it synchronously
         Task.Run(async () => await RunAsync()).Wait();
     }
     // Esta função simula os diferentes WAVYs
