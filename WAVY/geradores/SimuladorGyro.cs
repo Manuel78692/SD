@@ -33,8 +33,7 @@ public class SimuladorGyro
         }
     }
     
-    // Calcula a ondulação de forma suave para um instante dado,
-    // aplicando uma modulação diária (função senoidal) e adicionando um leve ruído.
+    // Calcula a ondulação de forma suave para um instante dado, aplicando uma modulação diária (função senoidal) e adicionando um leve ruído.
     static double SmoothRandomSwell(DateTime dt)
     {
         GetSeasonSwellLimits(dt, out double minSwell, out double maxSwell);
@@ -64,29 +63,23 @@ public class SimuladorGyro
     
     public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
-        // Obtém a cidade e a região através do método definido no arquivo "gerarcidades".
-        
+        // Obtém a cidade e a região através do método definido no arquivo "RandomCityRegion".
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();       
-        Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
+        // Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
         
-        // Data de início da simulação: 1 de janeiro de 2025, 00:00:00
+        // Data de início da simulação
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
         
-        // Loop de simulação: a cada 5 segundos (tempo real) calcula e grava a ondulação,
-        // avançando 5 segundos na simulação. Ao final de um dia, inicia o novo dia.
+        // Loop de simulação
         while (true)
         {
             double swell = SmoothRandomSwell(simulationTime);
             string classification = ClassifySwell(swell);
             string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
             
-            
             string output = string.Format(CultureInfo.InvariantCulture, "gyro={0:F2}:{1}", swell, timestamp);
-            
             yield return output;
-            // Console.WriteLine("Gyro -- " + output);
-            
-            // await Task.Delay(5000);
+
             simulationTime = simulationTime.AddSeconds(5);
             
             // Ao final de um dia (86400 segundos simulados), inicia o dia seguinte

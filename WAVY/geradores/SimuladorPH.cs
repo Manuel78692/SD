@@ -21,7 +21,7 @@ public class SimuladorPH
         }
     }
     
-    // Define os limites de pH para cada estação do ano com base em um intervalo base e aplica o ajuste da região
+    // Define os limites de pH para cada estação do ano com base num intervalo base e aplica o ajuste da região
     static void GetSeasonPHLimits(DateTime dt, string region, out double minPH, out double maxPH)
     {
         double adjustment = GetRegionPHAdjustment(region);
@@ -73,53 +73,30 @@ public class SimuladorPH
     
     public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
-        // Obtém a cidade e a região através do método definido no arquivo "gerarcidades".
-        
+        // Obtém a cidade e a região através do método definido no arquivo "RandomCityRegion".
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();
         Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
         
-        // Data de início da simulação (1 de janeiro de 2025, 00:00:00)
+        // Data de início da simulação
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
-        
-        // Abre o arquivo PH.csv em modo append (supondo que ele já exista)
-        // using (StreamWriter sw = new StreamWriter("PH.csv", true))
 
-
-        // Loop da simulação: a cada 5 segundos (tempo real), calcula e grava o pH,
-        // avançando 5 segundos no tempo simulado. Ao final de um dia, inicia o novo dia.
+        // Loop da simulação
         while (true)
         {
-            // Calcula o pH para o instante atual na região selecionada
             double ph = SmoothRandomPH(simulationTime, selectedRegion);
-            
-            // Formata o timestamp conforme "YYYY-MM-DD-HH-mm-ss"
             string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+
             string output = string.Format(CultureInfo.InvariantCulture, "ph={0:F2}:{1}", ph, timestamp);
-            
-            // Grava a mensagem no CSV
-            // sw.WriteLine(output);
-            // sw.Flush();
             yield return output;
-            
-            // Exibe também no console para acompanhamento
-            // Console.WriteLine("PH -- " + output);
-            
-            // Aguarda 5 segundos em tempo real
-            // await Task.Delay(5000);
-            
-            // Avança o tempo simulado em 5 segundos
+
             simulationTime = simulationTime.AddSeconds(5);
             
-            // Se tiver completado um dia (86400 segundos), inicia o próximo dia (o .NET faz a transição de dia, mês e ano)
+            // Ao final de um dia (86400 segundos simulados), inicia o dia seguinte
             if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
             {
                 simulationTime = simulationTime.Date.AddDays(1);
                 string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-                
                 string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                // sw.WriteLine(newDayMessage);
-                // sw.Flush();
-                
                 Console.WriteLine(newDayMessage);
             }
         }

@@ -135,8 +135,7 @@ public class SimuladorHumidade
         }
     }
 
-    // Calcula a humidade de forma suave para um instante e região,
-    // utilizando modulação diária e adição de ruído.
+    // Calcula a humidade de forma suave para um instante e região, utilizando modulação diária e adição de ruído.
     static double SmoothRandomHumidity(DateTime dt, string region)
     {
         GetSeasonHumidityLimits(dt, region, out double minHum, out double maxHum);
@@ -160,29 +159,25 @@ public class SimuladorHumidade
 
     public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
-        // Obtém a cidade e a região através do método presente no arquivo "gerarcidades"
-       
+        // Obtém a cidade e a região através do método presente no arquivo "RandomCityRegion"
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();
-        Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
+        // Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
 
-        // Data de início da simulação (1 de janeiro de 2025, 00:00:00)
+        // Data de início da simulação
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
-        
 
-        // Loop da simulação: a cada 5 segundos (tempo real), calcula e grava a humidade,
-        // avançando o tempo simulado em 5 segundos. Ao final de um dia, inicia o novo dia.
+        // Loop da simulação
         while (true)
         {
             double hum = SmoothRandomHumidity(simulationTime, selectedRegion);
             string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
+
             string output = string.Format(CultureInfo.InvariantCulture, "humidade={0:F2}:{1}", hum, timestamp);
-            
             yield return output;
-            // Console.WriteLine("Humidade -- " + output);
-            
-            // await Task.Delay(5000);
+
             simulationTime = simulationTime.AddSeconds(5);
 
+            // Ao final de um dia (86400 segundos simulados), inicia o dia seguinte
             if (simulationTime.TimeOfDay.TotalSeconds >= 86400)
             {
                 simulationTime = simulationTime.Date.AddDays(1);

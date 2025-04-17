@@ -8,8 +8,7 @@ public class SimuladorGPS
 {
     static Random random = new Random();
     
-    // Dicionário que mapeia os nomes das cidades (conforme retornado por RandomCityRegion) 
-    // para as coordenadas (latitude, longitude) da sua área costal.
+    // Dicionário que mapeia os nomes das cidades (conforme retornado por RandomCityRegion) para as coordenadas (latitude, longitude) da sua área costal.
     // Se a cidade não possuir registro, usaremos o default da região.
     static Dictionary<string, (double lat, double lon)> coastalCoordinates = new Dictionary<string, (double, double)>
     {
@@ -33,8 +32,7 @@ public class SimuladorGPS
         { "Algarve", (37.02, -7.93) }
     };
     
-    // Função que, a partir da cidade e região obtidas do "gerarcidades",
-    // retorna as coordenadas da área costal (possivelmente com pequena variação para simular o movimento da onda).
+    // Função que, a partir da cidade e região obtidas do "RandomCityRegion", retorna as coordenadas da área costal (possivelmente com pequena variação para simular o movimento da onda).
     static (double lat, double lon) GetCoastalGPS(string city, string region)
     {
         (double baseLat, double baseLon) target;
@@ -63,26 +61,22 @@ public class SimuladorGPS
     
     public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
-        // Obtém a cidade e a região através do método definido no arquivo "gerarcidades"
+        // Obtém a cidade e a região através do método definido no arquivo "RandomCityRegion"
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();
-        Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
+        // Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);
         
-        // Define a data de início da simulação: 1 de janeiro de 2025, 00:00:00
+        // Define a data de início da simulação
         DateTime simulationTime = new DateTime(2025, 1, 1, 0, 0, 0);
         
-        // Loop de simulação: a cada 5 segundos (tempo real) atualiza e grava a localização GPS
+        // Loop de simulação
         while (true)
         {
             (double lat, double lon) = GetCoastalGPS(selectedCity, selectedRegion);
             string timestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
             
-            
-            // string output = $"{wavy.WavyID}:{wavy.EstadoWavy}:[{lat:F6}, {lon:F6}]:{timestamp}";
             string output = string.Format(CultureInfo.InvariantCulture, "gps={0:F6},{1:F6}:{2}", lat, lon, timestamp);
             yield return output;
-            // Console.WriteLine("GPS -- " + output);
-            
-            // await Task.Delay(5000);
+
             simulationTime = simulationTime.AddSeconds(5);
             
             // Ao final de um dia (86400 segundos simulados), inicia o novo dia
@@ -91,8 +85,6 @@ public class SimuladorGPS
                 simulationTime = simulationTime.Date.AddDays(1);
                 string newDayTimestamp = simulationTime.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
                 string newDayMessage = "Fim do dia. Iniciando o dia: " + newDayTimestamp;
-                // sw.WriteLine(newDayMessage);
-                // sw.Flush();
                 Console.WriteLine(newDayMessage);
             }
         }
