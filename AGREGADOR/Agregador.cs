@@ -209,9 +209,9 @@ class Agregador
 
         string filePath = Path.Combine(dataFolder, agregadorFilePath);
 
-        wavysFileMutex.WaitOne();
         try
         {
+            wavysFileMutex.WaitOne();
             // Guarda a linha no ficheiro CSV
             using (StreamWriter writer = new StreamWriter(filePath, append: true))
             {

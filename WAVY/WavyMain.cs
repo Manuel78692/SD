@@ -23,8 +23,10 @@ class WavyMain
     {
         wavys = new Wavy[]
         {
-            new Wavy("WAVY01", agregadorIp, 5001, new List<TipoDado> { TipoDado.GPS, TipoDado.Gyro }),
-            new Wavy("WAVY02", agregadorIp, 5002, new List<TipoDado> { TipoDado.GPS }),
+            new Wavy("WAVY01", agregadorIp, 5001, new List<TipoDado> { TipoDado.GPS, TipoDado.Temperatura }),
+            new Wavy("WAVY02", agregadorIp, 5002, new List<TipoDado> { TipoDado.Gyro }),
+            new Wavy("WAVY03", agregadorIp, 5001, new List<TipoDado> { TipoDado.PH, TipoDado.Humidade }),
+            new Wavy("WAVY04", agregadorIp, 5002, new List<TipoDado> { TipoDado.GPS }),
         };
 
         // Aqui, cada Wavy é inicializado e o evento OnDataBlockReady é associado a uma fila de logs
