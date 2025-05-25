@@ -5,6 +5,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Xml;
 using System.Globalization;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text.Json;
 
 class Agregador
 {
@@ -142,93 +145,88 @@ class Agregador
     }
     private void ProcessaBloco(string[] bloco, string status)
     {
-        /*
-            Cada linha do WAVY vem no formato seguinte: "WAVY_ID:[data_type=data]:date_of_reading"
-
-            O que o AGREGADOR faz é separar os dados e encaminhá-los para o Servidor
-            Depois também deverá fazer algum tipo de pré-processamento dos dados, se necessário
-
-            O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv 
-            o que deverá fazer para cada tipo de dado em cada WAVY
-
-            Cada linha desse ficheiro segue o seguinte formato: 
-            "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
-            Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, 
-            não lê o ficheiro
-
-            Antes de enviar para o servidor, convém guardar o estado e o 'last sync' do WAVY conectado
-            No ficheiro "wavys_{id}.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
-            Neste momento, os estados são: Ativo, Desativo
-        */
-
-        // Dicionário para armazenar listas para cada tipo de dado
-        Dictionary<string, List<string>> dadosSensor = new Dictionary<string, List<string>>();
-
-        // Data the último sync do WAVY (DateTime.Now)
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-        string wavyId = string.Empty;
-
-        foreach (string linha in bloco)
+        // Envia o bloco e o status para o servidor RPC de pré-processamento
+        var factory = new ConnectionFactory() { HostName = "localhost" };
+        using (var connection = factory.CreateConnection())
+        using (var channel = connection.CreateModel())
         {
-            // Extrai o ID da WAVY e os dados
-            string[] partes = linha.Split('[',']');
-            string dataLeitura = partes[2].Trim(':'); // Data de leitura dos sensores
-            wavyId = partes[0].TrimEnd(':'); // ID da WAVY
-            string[] dados = partes[1].TrimEnd(']').Split(':'); // Dados da WAVY
-            
-            foreach (string dado in dados)
+            var queueName = "rpc_preprocessamento";
+            var correlationId = Guid.NewGuid().ToString();
+            var replyQueue = channel.QueueDeclare().QueueName;
+
+            var props = channel.CreateBasicProperties();
+            props.CorrelationId = correlationId;
+            props.ReplyTo = replyQueue;
+
+            // Prepara o pedido em JSON
+            var request = new
             {
-                // Aqui, a linha é do tipo "data_type=data"
-                string[] tipoDado = dado.Split('=');
-                string dataType = tipoDado[0].Trim(); // Tipo de dado
-                string data = tipoDado[1].Trim(); // Valor do dado
+                Bloco = bloco,
+                Status = status
+            };
+            var messageBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
 
-                // Se a lista para este tipo de dado não existir, cria-a
-                if (!dadosSensor.ContainsKey(dataType))
-                    dadosSensor[dataType] = new List<string>();
+            channel.BasicPublish(exchange: "",
+                                 routingKey: queueName,
+                                 basicProperties: props,
+                                 body: messageBytes);
 
-                // Adiciona o dado à lista apropriada
-                // Cada linha será do tipo "WAVY_ID:data:date_of_reading"
-                dadosSensor[dataType].Add(wavyId + ":" + data + ":" + dataLeitura);
-            }
-        }
-
-        // Debug: Faz print dos dados separados por tipo
-        // foreach (var entry in dadosSensor)
-        // {
-        //     Console.WriteLine($"Tipo de dado: {entry.Key}");
-        //     foreach (var data in entry.Value)
-        //         Console.WriteLine($"  Dado: {data}");
-        // }
-
-        // Variável guarda todos os tipos de variável enviados pela WAVY separados por ":"
-        string tipos = string.Join(":", dadosSensor.Keys);
-
-        // Variável indica a linha que o AGREGADOR deve guardar no ficheiro
-        string linhaCSV = $"{wavyId}:{status}:[{tipos}]:{timestamp}";
-
-        string filePath = Path.Combine(dataFolder, agregadorFilePath);
-
-        wavysFileMutex.WaitOne();
-        try
-        {
-            // Guarda a linha no ficheiro CSV
-            using (StreamWriter writer = new StreamWriter(filePath, append: true))
+            // Espera pela resposta
+            var consumer = new EventingBasicConsumer(channel);
+            string response = null;
+            consumer.Received += (model, ea) =>
             {
-                writer.WriteLine(linhaCSV);
-            }
-            Console.WriteLine($"Estado da WAVY atualizado no arquivo '{filePath}'.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Erro ao escrever no arquivo CSV: " + ex.Message);
-        }
-        finally
-        {
-            wavysFileMutex.ReleaseMutex();
-        }
+                if (ea.BasicProperties.CorrelationId == correlationId)
+                {
+                    response = System.Text.Encoding.UTF8.GetString(ea.Body.ToArray());
+                }
+            };
+            channel.BasicConsume(consumer: consumer, queue: replyQueue, autoAck: true);
 
-        EncaminhaParaServidor(dadosSensor);
+            // Espera até receber a resposta
+            while (response == null)
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+
+            // Deserializa o resultado devolvido pelo servidor RPC
+            var resultado = JsonSerializer.Deserialize<PreProcessamentoResultado>(response);
+
+            // Atualiza o ficheiro CSV com o estado e tipos de dados
+            string linhaCSV = $"{resultado.WavyId}:{resultado.Status}:[{resultado.Tipos}]:{resultado.Timestamp}";
+            string filePath = System.IO.Path.Combine(dataFolder, agregadorFilePath);
+
+            wavysFileMutex.WaitOne();
+            try
+            {
+                using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filePath, append: true))
+                {
+                    writer.WriteLine(linhaCSV);
+                }
+                Console.WriteLine($"Estado da WAVY atualizado no arquivo '{filePath}'.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao escrever no arquivo CSV: " + ex.Message);
+            }
+            finally
+            {
+                wavysFileMutex.ReleaseMutex();
+            }
+
+            // Encaminha os dados processados para o servidor
+            EncaminhaParaServidor(resultado.DadosSensor);
+        }
+    }
+
+    // Estrutura para deserializar o resultado do RPC
+    private class PreProcessamentoResultado
+    {
+        public Dictionary<string, List<string>> DadosSensor { get; set; }
+        public string WavyId { get; set; }
+        public string Status { get; set; }
+        public string Timestamp { get; set; }
+        public string Tipos { get; set; }
     }
 
     // Esta função encaminha cada bloco de dados, separados por tipo de dados, para o servidor

@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "FtIUcbf1lfw=",
+  "dgSpecHash": "pnrTcjTDp2A=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\AGREGADOR.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/manuelpinho/Desktop/SD/AGREGADOR/AGREGADOR.csproj",
+  "expectedPackageFiles": [
+    "/Users/manuelpinho/.nuget/packages/rabbitmq.client/7.1.2/rabbitmq.client.7.1.2.nupkg.sha512",
+    "/Users/manuelpinho/.nuget/packages/system.io.pipelines/8.0.0/system.io.pipelines.8.0.0.nupkg.sha512",
+    "/Users/manuelpinho/.nuget/packages/system.threading.ratelimiting/8.0.0/system.threading.ratelimiting.8.0.0.nupkg.sha512"
+  ],
   "logs": []
 }
