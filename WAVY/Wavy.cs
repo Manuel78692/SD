@@ -4,11 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
 
+// Os estados que a WAVY pode ter
 public enum Estado
 {
     Ativo,
-    Desativado
+    Desativo
 }
+// Os tipos de dados que a WAVY pode ter
 public enum TipoDado
 {
     GPS,
@@ -19,156 +21,132 @@ public enum TipoDado
 }
 public class Wavy
 {
-    private string AgregadorIP;
-    private int Port;
-    public string WavyID;
-    public Estado EstadoWavy = Estado.Ativo;
-    private List<string> bufferDados;
-    private const int MaxBufferSize = 5; // Tamanho máximo do buffer
+    // Id da WAVY
+    public string id;
 
-    public Wavy(string IP, int port, string ID)
+    // IP do AGREGADOR associado
+    private string agregadorIp;
+
+    // Port do AGREGADOR associado
+    private int agregadorPort;
+    
+    // Lista de sensores que o WAVY tem
+    private List<TipoDado> tipoDados = new List<TipoDado>();
+
+    // Estado da WAVY
+    public Estado estadoWavy = Estado.Ativo;
+
+    // Buffer de dados a enviar para o AGREGADOR
+    private List<string> bufferDados;
+
+    // Tamanho máximo do buffer
+    private const int MaxBufferSize = 5; 
+
+    // Para mandar os logs ao WavyMain
+    // Invés Console.Log, usa-se OnDataBlockReady?.Invoke
+    public event Action<string>? OnDataBlockReady;
+
+    // Construtor da WAVY
+    public Wavy(string _id, string _agregadorIp, int _agregadorPort, List<TipoDado> _tipoDados)
     {
-        AgregadorIP = IP;
-        Port = port;
-        WavyID = ID;
+        id = _id;
+        agregadorIp = _agregadorIp;
+        agregadorPort = _agregadorPort;
+        tipoDados = _tipoDados;
         bufferDados = new List<string>();
     }
-    // ###################################################################################################################### //
-    // --- Nestas funções, os dados são recebidos individualmente, ou seja, cada linha do bufferDados vai ser de cada tipo de dado individualmente
-    /*
-        Exemplo de um bufferDados completo, se usadas estas funções:
-        25.2        [Temperatura]
-        37.020244   [GPS]
-        25.5        [Temperatura]
-        37.020106   [GPS]
-        25.8        [Temperatura]
-    */
-    public async Task ReceberDadosIndividual(List<TipoDado> tipoDados)
-    {
-        // Cria uma lista de tasks para cada simulador.
-        var tasks = new List<Task>();
 
-        foreach (TipoDado tipo in tipoDados)
-        {
-            if (SimuladorFactory.Simulators.TryGetValue(tipo, out var simulatorFunc))
-            {
-                // Inicia o simulador para este tipo.
-                // Note: Passamos "this", ou seja, a própria instância de Wavy.
-                var simulatorStream = simulatorFunc(this);
-
-                // Cria uma task para processar os dados desse simulador.
-                Task task = ProcessSimulatorStream(tipo, simulatorStream);
-                tasks.Add(task);
-            }
-            else
-            {
-                Console.WriteLine($"Nenhum simulador encontrado para o tipo: {tipo}");
-            }
-        }
-
-        // Aguarda que todas as tasks concluam.
-        await Task.WhenAll(tasks);
-    }
-    private async Task ProcessSimulatorStream(TipoDado tipo, IAsyncEnumerable<string> simulatorStream)
-    {
-        await foreach (string output in simulatorStream)
-        {
-            // Aqui você pode fazer qualquer processamento adicional, se necessário.
-            // Por exemplo, se desejar combinar os dados de vários sensores numa única linha,
-            // você pode armazenar cada sensor em um dicionário temporário e só juntar quando todos tiverem produzido um novo valor.
-            // Neste exemplo, cada output é adicionado individualmente.
-            lock (bufferDados)
-            {
-                if (bufferDados.Count >= MaxBufferSize)
-                    GerirLista();
-
-                bufferDados.Add(output);
-            }
-            // Console.WriteLine($"[{tipo}] Data added to list: {output}");
-        }
-    }
-    // ###################################################################################################################### //
-    public async Task ReceberDados(List<TipoDado> tipoDados)
+    //Esta função recebe dados dos sensores.
+    //Ou seja, utiliza os simuladores de sensores (na pasta geradores) para simular leitura de dados em tempo real.
+    public async Task ReceberDados(CancellationToken token = default)
     {
         Random random = new Random();
-        // Create a list of enumerators – one per sensor type.
-        var enumerators = new List<(TipoDado Tipo, IAsyncEnumerator<string> Enumerator)>();
+        // Cria uma lista de enumeradores, uma por tipo de sensor
+        var enumeradores = new List<(TipoDado Tipo, IAsyncEnumerator<string> Enumerador)>();
 
         foreach (TipoDado tipo in tipoDados)
         {
-            if (SimuladorFactory.Simulators.TryGetValue(tipo, out var simulatorFunc))
+            // Verifica no SimuladorFactory a função associada ao tipo de dado
+            // A função associada é o simulador do respetivo sensor
+            if (SimuladorFactory.Simuladores.TryGetValue(tipo, out var simulatorFunc))
             {
-                // Get the enumerator from the IAsyncEnumerable<string>
-                IAsyncEnumerator<string> enumerator = simulatorFunc(this).GetAsyncEnumerator();
-                enumerators.Add((tipo, enumerator));
+                // Guarda a função no enumerador
+                IAsyncEnumerator<string> enumerador = simulatorFunc(this).GetAsyncEnumerator();
+                enumeradores.Add((tipo, enumerador));
             }
             else
             {
-                Console.WriteLine($"Nenhum simulador encontrado para o tipo: {tipo}");
+                OnDataBlockReady?.Invoke($"Nenhum simulador encontrado para o tipo: {tipo}");
             }
         }
 
-        // Infinite loop – adjust as needed (or add cancellation)
-        while (true)
+        // Inicia o loop da simulação dos sensores
+        while (!token.IsCancellationRequested)
         {
-            // Prepare a list to hold the current values from all enumerators.
-            var sensorValues = new List<string>();
+            if (estadoWavy != Estado.Ativo)
+            {
+                OnDataBlockReady?.Invoke($"{id} não ativada");
+                await Task.Delay(500, token);
+                continue;
+            }
+            // Lista que contém todos os valores do enumeradores
+            var valoresSensor = new List<string>();
 
+            // Variável para guardar a data na qual o sensor foi lido
             string last_sync = string.Empty;
 
-            // For each sensor enumerator, wait for the next value.
-            foreach (var (Tipo, Enumerator) in enumerators)
+            foreach (var (Tipo, Enumerador) in enumeradores)
             {
-                // Await the next result; if one sensor ends, you can decide to break out.
-                bool hasNext = await Enumerator.MoveNextAsync();
+                bool hasNext = await Enumerador.MoveNextAsync();
                 if (!hasNext)
                 {
-                    Console.WriteLine($"O simulador para {Tipo} terminou.");
-                    return; // or break, depending on your requirements
+                    OnDataBlockReady?.Invoke($"O simulador para {Tipo} terminou.");
+                    return;
                 }
 
-                string dadosRecebidos = Enumerator.Current;
+                string dadosRecebidos = Enumerador.Current;
                 string[] partes = dadosRecebidos.Split(':');
+
+                // Verifica se existe ou não data na qual o sensor foi lido. Se não existir, fica "N/A"
                 if (partes.Length > 1)
                     last_sync = partes[1];
                 else
                     last_sync = "N/A";
 
-                sensorValues.Add(partes[0]);
+                valoresSensor.Add(partes[0]);
             }
 
-            // Combine the results into a single composite string.
-            // For a device with GPS and Gyroscope, it would produce something like: [data_gps:data_gyro]
-            string compositeOutput = "[" + string.Join(":", sensorValues) + "]" + ":" + last_sync;
+            // Combina todos os dados recebidos dos possíveis diferentes tipos de sensores e combina-os numa linha da lista
+            string compositeOutput = "[" + string.Join(":", valoresSensor) + "]" + ":" + last_sync;
+
+            // Se a lista ultrapassar o tamanho máximo, chama a função GerirLista
             if (bufferDados.Count >= MaxBufferSize)
-                    GerirLista();
+                GerirLista();
+            
+            // Adiciona a lista ao bufferDados
             bufferDados.Add(compositeOutput);
-
-            // Print to console (or process/store further)
-            // Console.WriteLine("Composite Data: " + compositeOutput);
-
-            // Optionally, add a delay between iterations,
-            // or let the simulators pace themselves with their own delays.
 
             // Gera um atraso aleatório, para simular a leitura dos sensores
             // Em .Next, o primeiro parâmetro é inclusivo e o segundo é exclusivo.
-            int delay = random.Next(100, 201);
-            await Task.Delay(delay);
+            // int delay = random.Next(100, 201);
+            await Task.Delay(500, token);
         }
     }
     
-
+    // Esta função chama a função EnviarBloco e limpa o bufferDados
     private void GerirLista()
     {
         // Verifica se o buffer atingiu o tamanho máximo
         if (bufferDados.Count >= MaxBufferSize)
         {
-            // Envia o bloco de dados para o agregador
-            // EnviarBloco();
-            Console.WriteLine(WavyID + " List ::");
+            // Envia o bloco de dados para o AGREGADOR
+            EnviarBloco();
+
+            // Debug : Faz print da lista
+            OnDataBlockReady?.Invoke(id + " List :");
             foreach (string element in bufferDados)
             {
-                Console.WriteLine("| List - " + element);
+                OnDataBlockReady?.Invoke("| List - " + element);
             }
 
             // Limpa o buffer após enviar
@@ -179,45 +157,96 @@ public class Wavy
         }
     }
 
+    // Esta função envia o bloco de dados (bufferDados) para o AGREGADOR associado
     private void EnviarBloco()
     {
         
         try
         {
-            using (TcpClient client = new TcpClient(AgregadorIP, Port))
+            using (TcpClient client = new TcpClient(agregadorIp, agregadorPort))
             {
                 NetworkStream stream = client.GetStream();
                 using (StreamReader reader = new StreamReader(stream))
                 using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                 {
                     // Envia a linha de cabeçalho com o identificador do bloco e o número de linhas
-                    string header = "BLOCK " + bufferDados.Count;
+                    string header = "BLOCK " + bufferDados.Count + " STATUS " + estadoWavy.ToString();
+
+                    // Debug : Faz print do header
                     writer.WriteLine(header);
-                    Console.WriteLine("Enviado header: " + header);
+                    OnDataBlockReady?.Invoke("Enviado header: " + header);
 
                     // Envia cada linha do bloco
                     foreach (string linha in bufferDados)
                     {
-                        writer.WriteLine(linha);
-                        Console.WriteLine("Enviada linha: " + linha);
+                        writer.WriteLine(id + ":" + linha);
                     }
 
-                    // Aguarda o ACK do Agregador
+                    // Aguarda o ACK do AGREGADOR
                     string resposta = reader.ReadLine();
                     if (resposta == "ACK")
-                    {
-                        Console.WriteLine("ACK recebido. Bloco enviado com sucesso.");
-                    }
+                        OnDataBlockReady?.Invoke("ACK recebido. Bloco enviado com sucesso.");
                     else
-                    {
-                        Console.WriteLine("Resposta inesperada: " + resposta);
-                    }
+                        OnDataBlockReady?.Invoke("Resposta inesperada: " + resposta);
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao enviar bloco: " + ex.Message);
+            OnDataBlockReady?.Invoke("Erro ao enviar bloco: " + ex.Message);
         }
     }
+     // ###################################################################################################################### //
+    // --- Nestas funções, os dados são recebidos individualmente, ou seja, cada linha do bufferDados vai ser de cada tipo de dado individualmente
+    /*
+        Exemplo de um bufferDados completo, se usadas estas funções:
+        25.2        [Temperatura]
+        37.020244   [GPS]
+        25.5        [Temperatura]
+        37.020106   [GPS]
+        25.8        [Temperatura]
+
+        Funções foram mantidas aqui caso seja necessário o uso
+    */
+    public async Task ReceberDadosIndividual(List<TipoDado> tipoDados)
+    {
+        // Cria uma lista de tasks para cada simulador.
+        var tasks = new List<Task>();
+
+        foreach (TipoDado tipo in tipoDados)
+        {
+            if (SimuladorFactory.Simuladores.TryGetValue(tipo, out var simulatorFunc))
+            {
+                // Inicia o simulador para este tipo.
+                // Nota: Passamos "this", ou seja, a própria instância de Wavy.
+                var simulatorStream = simulatorFunc(this);
+
+                // Cria uma task para processar os dados desse simulador.
+                Task task = ProcessSimulatorStream(tipo, simulatorStream);
+                tasks.Add(task);
+            }
+            else
+            {
+                OnDataBlockReady?.Invoke($"Nenhum simulador encontrado para o tipo: {tipo}");
+            }
+        }
+
+        // Aguarda que todas as tasks concluam.
+        await Task.WhenAll(tasks);
+    }
+    private async Task ProcessSimulatorStream(TipoDado tipo, IAsyncEnumerable<string> simulatorStream)
+    {
+        await foreach (string output in simulatorStream)
+        {
+            lock (bufferDados)
+            {
+                if (bufferDados.Count >= MaxBufferSize)
+                    GerirLista();
+
+                bufferDados.Add(output);
+            }
+            // OnDataBlockReady?.Invoke($"[{tipo}] Data added to list: {output}");
+        }
+    }
+    // ###################################################################################################################### //
 }

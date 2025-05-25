@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 
 public static class SimuladorFactory
 {
-    // This dictionary maps each TipoDado to a simulator function.
-    // Each simulator function receives a Wavy and returns IAsyncEnumerable<string>.
-    public static readonly Dictionary<TipoDado, Func<Wavy, IAsyncEnumerable<string>>> Simulators =
+    // Este dicionário associa cada tipo de dado à respetiva função de simulação do sensor
+    public static readonly Dictionary<TipoDado, Func<Wavy, IAsyncEnumerable<string>>> Simuladores =
         new Dictionary<TipoDado, Func<Wavy, IAsyncEnumerable<string>>>
     {
         { TipoDado.GPS, SimuladorGPS.Start },

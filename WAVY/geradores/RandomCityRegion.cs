@@ -5,8 +5,7 @@ public class RandomCityRegion
 {
     public static (string,string) GetRandomCityAndRegion()
     {
-        // Define o dicionário que mapeia as regiões aos seus grupos de cidades.
-        // Esses dados podem ser armazenados em um arquivo externo, mas aqui os definimos diretamente.
+        // Define o dicionário que mapeia as regiões das cidades.
         Dictionary<string, List<string>> regionCities = new Dictionary<string, List<string>>
         {
             { "Norte", new List<string> { "Viana do Castelo", "Braga", "Porto" } },

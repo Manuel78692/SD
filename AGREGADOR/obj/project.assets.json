@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\AGREGADOR.csproj",
+      "projectUniqueName": "C:\\Users\\ruipe\\Source\\Repos\\SD\\AGREGADOR\\AGREGADOR.csproj",
       "projectName": "AGREGADOR",
-      "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\AGREGADOR.csproj",
+      "projectPath": "C:\\Users\\ruipe\\Source\\Repos\\SD\\AGREGADOR\\AGREGADOR.csproj",
       "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\obj\\",
+      "outputPath": "C:\\Users\\ruipe\\Source\\Repos\\SD\\AGREGADOR\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
