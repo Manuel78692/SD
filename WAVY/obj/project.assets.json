@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/wavy.csproj",
-      "projectName": "wavy",
-      "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/wavy.csproj",
+      "projectUniqueName": "/Users/manuelpinho/Desktop/SD/WAVY/WAVY.csproj",
+      "projectName": "WAVY",
+      "projectPath": "/Users/manuelpinho/Desktop/SD/WAVY/WAVY.csproj",
       "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-      "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/",
+      "outputPath": "/Users/manuelpinho/Desktop/SD/WAVY/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
