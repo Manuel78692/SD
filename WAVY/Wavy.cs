@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
+using System.Text;
+using RabbitMQ.Client;
 
 // Os estados que a WAVY pode ter
 public enum Estado
@@ -24,12 +26,9 @@ public class Wavy
     // Id da WAVY
     public string id;
 
-    // IP do AGREGADOR associado
-    private string agregadorIp;
+    // Preferred AGREGADOR ID
+    private string preferredAgregatorId; // New
 
-    // Port do AGREGADOR associado
-    private int agregadorPort;
-    
     // Lista de sensores que o WAVY tem
     private List<TipoDado> tipoDados = new List<TipoDado>();
 
@@ -46,14 +45,41 @@ public class Wavy
     // Invés Console.Log, usa-se OnDataBlockReady?.Invoke
     public event Action<string>? OnDataBlockReady;
 
+    // RabbitMQ connection objects - could be shared or per send
+    private IConnection? _rabbitConnection; // New
+    private IModel? _rabbitChannel; // New
+
     // Construtor da WAVY
-    public Wavy(string _id, string _agregadorIp, int _agregadorPort, List<TipoDado> _tipoDados)
+    public Wavy(string _id, string _preferredAgregatorId, List<TipoDado> _tipoDados)
     {
         id = _id;
-        agregadorIp = _agregadorIp;
-        agregadorPort = _agregadorPort;
+        preferredAgregatorId = _preferredAgregatorId; // Changed
         tipoDados = _tipoDados;
         bufferDados = new List<string>();
+         // InitializeRabbitMq(); // Consider initializing connection here or on first send
+    }
+
+    private void EnsureRabbitMqConnection()
+    {
+        if (_rabbitChannel == null || _rabbitChannel.IsClosed)
+        {
+            try
+            {
+                _rabbitConnection?.Close(); // Close previous if any
+                var factory = new ConnectionFactory() { HostName = RabbitMqConstants.HostName, DispatchConsumersAsync = true };
+                _rabbitConnection = factory.CreateConnection();
+                _rabbitChannel = _rabbitConnection.CreateModel();
+
+                // Declare the topic exchange - idempotent
+                _rabbitChannel.ExchangeDeclare(exchange: RabbitMqConstants.WavyTopicExchange, type: ExchangeType.Topic, durable: true);
+                OnDataBlockReady?.Invoke($"RabbitMQ connection and topic exchange '{RabbitMqConstants.WavyTopicExchange}' ensured for {id}.");
+            }
+            catch (Exception ex)
+            {
+                OnDataBlockReady?.Invoke($"Error initializing RabbitMQ for {id}: {ex.Message}");
+                _rabbitChannel = null; // Prevent further use if setup failed
+            }
+        }
     }
 
     //Esta função recebe dados dos sensores.
@@ -122,7 +148,7 @@ public class Wavy
             // Se a lista ultrapassar o tamanho máximo, chama a função GerirLista
             if (bufferDados.Count >= MaxBufferSize)
                 GerirLista();
-            
+
             // Adiciona a lista ao bufferDados
             bufferDados.Add(compositeOutput);
 
@@ -160,42 +186,68 @@ public class Wavy
     // Esta função envia o bloco de dados (bufferDados) para o AGREGADOR associado
     private void EnviarBloco()
     {
-        
+        EnsureRabbitMqConnection();
+        if (_rabbitChannel == null)
+        {
+            OnDataBlockReady?.Invoke($"Cannot send block for {id}: RabbitMQ channel not available.");
+            // Optionally, re-buffer or handle this error
+            return;
+        }
+
         try
         {
-            using (TcpClient client = new TcpClient(agregadorIp, agregadorPort))
+            // Construct the message payload
+            // The payload includes the original header and all data lines
+            StringBuilder messageBuilder = new StringBuilder();
+            string header = $"BLOCK {bufferDados.Count} STATUS {estadoWavy.ToString()}";
+            messageBuilder.AppendLine(header);
+
+            foreach (string linha in bufferDados)
             {
-                NetworkStream stream = client.GetStream();
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
-                {
-                    // Envia a linha de cabeçalho com o identificador do bloco e o número de linhas
-                    string header = "BLOCK " + bufferDados.Count + " STATUS " + estadoWavy.ToString();
-
-                    // Debug : Faz print do header
-                    writer.WriteLine(header);
-                    OnDataBlockReady?.Invoke("Enviado header: " + header);
-
-                    // Envia cada linha do bloco
-                    foreach (string linha in bufferDados)
-                    {
-                        writer.WriteLine(id + ":" + linha);
-                    }
-
-                    // Aguarda o ACK do AGREGADOR
-                    string resposta = reader.ReadLine();
-                    if (resposta == "ACK")
-                        OnDataBlockReady?.Invoke("ACK recebido. Bloco enviado com sucesso.");
-                    else
-                        OnDataBlockReady?.Invoke("Resposta inesperada: " + resposta);
-                }
+                messageBuilder.AppendLine($"{id}:{linha}");
             }
+
+            string messageBody = messageBuilder.ToString();
+            var bodyBytes = Encoding.UTF8.GetBytes(messageBody);
+
+            // Define the routing key for the preferred agregador
+            string routingKey = $"wavy.data.prefer.{preferredAgregatorId}";
+
+            var properties = _rabbitChannel.CreateBasicProperties();
+            properties.Persistent = true; // Make messages persistent
+
+            _rabbitChannel.BasicPublish(
+                exchange: RabbitMqConstants.WavyTopicExchange,
+                routingKey: routingKey,
+                basicProperties: properties,
+                body: bodyBytes);
+
+            OnDataBlockReady?.Invoke($"[{id}] Sent block with header '{header}' to exchange '{RabbitMqConstants.WavyTopicExchange}' with RK '{routingKey}'.");
         }
         catch (Exception ex)
         {
-            OnDataBlockReady?.Invoke("Erro ao enviar bloco: " + ex.Message);
+            OnDataBlockReady?.Invoke($"[{id}] Error sending block via RabbitMQ: {ex.Message}");
+            // Consider closing/re-establishing channel on certain errors
+            _rabbitChannel?.Close(); // May force re-init on next send
+            _rabbitChannel = null;
         }
     }
+    // Call this when Wavy is disposed or application shuts down
+    public void CloseRabbitMq()
+    {
+        try
+        {
+            _rabbitChannel?.Close();
+            _rabbitConnection?.Close();
+        }
+        catch (Exception ex)
+        {
+            OnDataBlockReady?.Invoke($"Error closing RabbitMQ for {id}: {ex.Message}");
+        }
+    }
+
+
+    
      // ###################################################################################################################### //
     // --- Nestas funções, os dados são recebidos individualmente, ou seja, cada linha do bufferDados vai ser de cada tipo de dado individualmente
     /*
