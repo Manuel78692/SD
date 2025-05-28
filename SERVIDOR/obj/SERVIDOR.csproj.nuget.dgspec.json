@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/manuelpinho/Desktop/SD/SERVIDOR/SERVIDOR.csproj": {}
+    "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {}
   },
   "projects": {
-    "/Users/manuelpinho/Desktop/SD/SERVIDOR/SERVIDOR.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/manuelpinho/Desktop/SD/SERVIDOR/SERVIDOR.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
         "projectName": "SERVIDOR",
-        "projectPath": "/Users/manuelpinho/Desktop/SD/SERVIDOR/SERVIDOR.csproj",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
         "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-        "outputPath": "/Users/manuelpinho/Desktop/SD/SERVIDOR/obj/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
@@ -43,6 +43,12 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.4.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

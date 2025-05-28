@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/manuelpinho/Desktop/SD/WAVY/WAVY.csproj": {}
+    "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj": {}
   },
   "projects": {
-    "/Users/manuelpinho/Desktop/SD/WAVY/WAVY.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/manuelpinho/Desktop/SD/WAVY/WAVY.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
         "projectName": "WAVY",
-        "projectPath": "/Users/manuelpinho/Desktop/SD/WAVY/WAVY.csproj",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
         "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-        "outputPath": "/Users/manuelpinho/Desktop/SD/WAVY/obj/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"

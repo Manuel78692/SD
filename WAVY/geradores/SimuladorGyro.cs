@@ -63,6 +63,7 @@ public class SimuladorGyro
     
     public static async IAsyncEnumerable<string> Start(Wavy wavy)
     {
+        await Task.Yield();
         // Obtém a cidade e a região através do método definido no arquivo "RandomCityRegion".
         (string selectedCity, string selectedRegion) = RandomCityRegion.GetRandomCityAndRegion();       
         // Console.WriteLine("Região e cidade obtidas do gerarcidades: {0} - {1}", selectedRegion, selectedCity);

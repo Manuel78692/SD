@@ -183,7 +183,7 @@ public class Wavy
                     }
 
                     // Aguarda o ACK do AGREGADOR
-                    string resposta = reader.ReadLine();
+                    string? resposta = reader.ReadLine();
                     if (resposta == "ACK")
                         OnDataBlockReady?.Invoke("ACK recebido. Bloco enviado com sucesso.");
                     else

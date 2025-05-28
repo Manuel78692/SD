@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/manuelpinho/Desktop/SD/AGREGADOR/AGREGADOR.csproj": {}
+    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {}
   },
   "projects": {
-    "/Users/manuelpinho/Desktop/SD/AGREGADOR/AGREGADOR.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/manuelpinho/Desktop/SD/AGREGADOR/AGREGADOR.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
         "projectName": "AGREGADOR",
-        "projectPath": "/Users/manuelpinho/Desktop/SD/AGREGADOR/AGREGADOR.csproj",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
         "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-        "outputPath": "/Users/manuelpinho/Desktop/SD/AGREGADOR/obj/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"

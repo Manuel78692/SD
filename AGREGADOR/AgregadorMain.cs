@@ -1,27 +1,26 @@
 using System;
-using System.Net;
-using System.Threading.Tasks;
+using System.Threading.Tasks; // ← Necessário para Task.Run
+using AGREGADOR;               // ← Necessário para reconhecer a classe Agregador
 
-class AgregadorMain
+namespace AGREGADOR
 {
-    // Ip do SERVIDOR
-    private static string servidorIp = "127.0.0.1";
-    
-    // Porta para enviar os dados para o SERVIDOR
-    private static int servidorPort = 5000;
-
-    public static void Main()
+    public class AgregadorMain
     {
-        Task.Run(async () => await RunAsync()).Wait();
-    }
-    private static async Task RunAsync()
-    {
-        Agregador agregador01 = new Agregador("AGREGADOR01", 5001, servidorIp, servidorPort);
-        Agregador agregador02 = new Agregador("AGREGADOR02", 5002, servidorIp, servidorPort);
+        public static void Main(string[] args)
+        {
+            var agregador1 = new Agregador("AGREGADOR01", 5001, "127.0.0.1", 6001);
+            var agregador2 = new Agregador("AGREGADOR02", 5002, "127.0.0.1", 6001);
 
-        Task task1 = Task.Run(() => agregador01.Run());
-        Task task2 = Task.Run(() => agregador02.Run());
+            Console.WriteLine("Inicializando agregadores...");
+            _ = Task.Run(() => agregador1.Run());
+            _ = Task.Run(() => agregador2.Run());
 
-        await Task.WhenAll(task1, task2);
+            // Mantém o processo vivo
+            while (true)
+            {
+                Task.Delay(1000).Wait();
+            }
+        }
     }
 }
+

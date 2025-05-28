@@ -7,7 +7,7 @@ using System.Threading;
 class Servidor
 {
     // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
-    private static readonly int port = 5000;
+    private static readonly int port = 5001;
 
     // Pasta onde irá guardar os dados
     private static readonly string dataFolder = "dados";
