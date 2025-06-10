@@ -1,36 +1,63 @@
 using System;
 using System.Net;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 class WavyMain
 {
-    private static string AgregadorIP = "127.0.0.1";
-    private static int Port = 5001;
+    // Ip dos AGREGADORES
+    private static string agregadorIp = "127.0.0.1";
 
+    // Lista dos WAVYs
+    private static Wavy[] wavys;
+
+    // Para guardar os logs de cada WAVY
+    private static ConcurrentDictionary<string, ConcurrentQueue<string>> _sendLogs = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
+    
+    // Para parar o loop de forma segura
+    private static CancellationTokenSource _cts = new CancellationTokenSource();
+
+    // Esta função simula os diferentes WAVYs
+    // Cria instâncias da classe e corre todas simultaneamente
     public static void Main()
     {
-        Task.Run(async () => await RunAsync()).Wait();
-    }
-
-    private static async Task RunAsync()
-    {
-        Wavy[] wavys = new Wavy[]
+        wavys = new Wavy[]
         {
-            new Wavy(AgregadorIP, Port, "WAVY01"),
-            new Wavy(AgregadorIP, Port, "WAVY02"),
-            new Wavy(AgregadorIP, Port, "WAVY03"),
-            new Wavy(AgregadorIP, Port, "WAVY04"),
-    
+            new Wavy("WAVY01", "AGREGADOR01", new List<TipoDado> { TipoDado.GPS, TipoDado.Temperatura }),
+            new Wavy("WAVY02", "AGREGADOR02", new List<TipoDado> { TipoDado.Gyro }),
+            new Wavy("WAVY03", "AGREGADOR01", new List<TipoDado> { TipoDado.PH, TipoDado.Humidade }),
+            new Wavy("WAVY04", "AGREGADOR02", new List<TipoDado> { TipoDado.GPS }),
         };
 
+        // Aqui, cada Wavy é inicializado e o evento OnDataBlockReady é associado a uma fila de logs
+        foreach(var w in wavys)
+        {
+            // Inicializa a fila de logs para cada Wavy
+            _sendLogs[w.id] = new ConcurrentQueue<string>();
+
+            // Associa o evento OnDataBlockReady a uma função que adiciona os logs à fila
+            w.OnDataBlockReady += block =>
+            {
+                // Adiciona o log à fila correspondente ao Wavy
+                _sendLogs[w.id].Enqueue($"{DateTime.Now:HH:mm:ss} → {block}");
+            };
+
+            // Inicia a receção de dados
+            Task.Run(() => w.ReceberDados(_cts.Token));
+        }
+        // Inicia a interface na consola
+        RunAsync().Wait();
+    }
+
+    // Esta função gere a interface na consola
+    private static async Task RunAsync()
+    {
         while (true)
         {
             Console.Clear();
-            Console.WriteLine("=== Gerenciamento de WAVYs ===");
+            Console.WriteLine("=== Gestão de WAVYs ===");
             Console.WriteLine("1. Listar WAVYs");
-            Console.WriteLine("2. Enviar Dados");
+            Console.WriteLine("2. Mostrar envio de dados");
             Console.WriteLine("3. Alterar Estado de uma WAVY");
             Console.WriteLine("4. Sair");
             Console.Write("Escolha uma opção: ");
@@ -39,15 +66,19 @@ class WavyMain
             switch (opcao)
             {
                 case "1":
-                    ListarWavys(wavys);
+                    ListarWavys();
                     break;
                 case "2":
-                    await EnviarDados(wavys);
+                    await MostrarEnvioDados();
                     break;
                 case "3":
-                    AlterarEstadoWavy(wavys);
+                    AlterarEstadoWavy();
                     break;
                 case "4":
+                    foreach (var w in wavys)
+                        w.CloseRabbitMq();
+                    _cts.Cancel();
+                    Console.Clear();
                     return;
                 default:
                     Console.WriteLine("Opção inválida. Pressione qualquer tecla para continuar...");
@@ -57,71 +88,56 @@ class WavyMain
         }
     }
 
-    private static void ListarWavys(Wavy[] wavys)
+    // Esta função lista todas as WAVYs existentes
+    private static void ListarWavys()
     {
         Console.Clear();
         Console.WriteLine("=== Lista de WAVYs ===");
         foreach (var wavy in wavys)
         {
-            Console.WriteLine($"ID: {wavy.WavyID}, Estado: {wavy.EstadoWavy}");
+            Console.WriteLine($"ID: {wavy.id}, Estado: {wavy.estadoWavy}");
         }
         Console.WriteLine("Pressione qualquer tecla para voltar ao menu...");
         Console.ReadKey();
     }
 
-    private static async Task EnviarDados(Wavy[] wavys)
+    // Esta função mostra os logs das WAVYs
+    private static async Task MostrarEnvioDados()
     {
-    Console.Clear();
-    Console.WriteLine("=== Enviando Dados ===");
-    Console.WriteLine("Pressione qualquer tecla para parar o envio de dados.");
+        Console.Clear();
+        Console.WriteLine("=== Enviando Dados (Pressione qualquer tecla para voltar ao menu) ===");
 
-    // Cria um CancellationTokenSource para cancelar as tarefas
-
-
-        try
+        while (true)
         {
-            // Lista de tarefas para envio de dados
-            List<Task> tasks = new List<Task>();
-
-            foreach (var wavy in wavys)
+            // Se o utilizador pressionou uma tecla, volta para o menu principal
+            if (Console.KeyAvailable)
             {
-                if (wavy.EstadoWavy == Estado.Ativo) // Apenas WAVYs ativas enviam dados
-                {
-                    // Define os tipos de dados para cada WAVY
-                    List<TipoDado> tiposDeDados = wavy.WavyID switch
-                    {
-                        "WAVY01" => new List<TipoDado> { TipoDado.GPS, TipoDado.Gyro },
-                        "WAVY02" => new List<TipoDado> { TipoDado.Humidade },
-                        "WAVY03" => new List<TipoDado> { TipoDado.PH, TipoDado.Temperatura },
-                        "WAVY04" => new List<TipoDado> { TipoDado.GPS, TipoDado.Gyro, TipoDado.PH, TipoDado.Temperatura },
-                        _ => new List<TipoDado>() // Caso padrão para WAVYs adicionais
-                    };
-
-                    // Adiciona a tarefa para envio de dados
-                    tasks.Add(Task.Run(() => wavy.ReceberDados(tiposDeDados)));
-                }
+                Console.ReadKey(true);
+                break;
             }
 
-            await Task.WhenAll(tasks); // Aguarda todas as tarefas serem concluídas
-        }
-        catch (OperationCanceledException)
-        {
-            Console.WriteLine("Envio de dados interrompido pelo usuário.");
-        }
-      
+            // Fazer print de todos os logs das WAVYs
+            foreach (var w in wavys)
+            {
+                var queue = _sendLogs[w.id];
+                while (queue.TryDequeue(out var logEntry))
+                    Console.WriteLine($"[{w.id}] {logEntry}");
+            }
 
-        Console.WriteLine("Pressione qualquer tecla para voltar ao menu...");
-        Console.ReadKey();
+            // Pausar para não estar a fazer looping constantemente
+            await Task.Delay(200);
+        }
     }
 
-    private static void AlterarEstadoWavy(Wavy[] wavys)
+    // Esta função altera o estado da WAVY conforme o input do utilizador
+    private static void AlterarEstadoWavy()
     {
         Console.Clear();
         Console.WriteLine("=== Alterar Estado de uma WAVY ===");
         Console.WriteLine("Digite o ID da WAVY:");
         string id = Console.ReadLine();
 
-        var wavy = Array.Find(wavys, w => w.WavyID == id);
+        var wavy = Array.Find(wavys, w => w.id == id);
         if (wavy == null)
         {
             Console.WriteLine("WAVY não encontrada. Pressione qualquer tecla para voltar ao menu...");
@@ -129,14 +145,14 @@ class WavyMain
             return;
         }
 
-        Console.WriteLine($"Estado atual da {wavy.WavyID}: {wavy.EstadoWavy}");
-        Console.WriteLine("Digite o novo estado (Ativo/Desativado):");
+        Console.WriteLine($"Estado atual da {wavy.id}: {wavy.estadoWavy}");
+        Console.WriteLine($"Digite o novo estado ({string.Join("/", Enum.GetNames(typeof(Estado)))}):");
         string novoEstado = Console.ReadLine();
 
         if (Enum.TryParse(novoEstado, true, out Estado estado))
         {
-            wavy.EstadoWavy = estado;
-            Console.WriteLine($"Estado da {wavy.WavyID} alterado para {wavy.EstadoWavy}.");
+            wavy.estadoWavy = estado;
+            Console.WriteLine($"Estado da {wavy.id} alterado para {wavy.estadoWavy}.");
         }
         else
         {

@@ -13,3 +13,6 @@ C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\refint\SERVIDOR.dll
 C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.pdb
 C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.genruntimeconfig.cache
 C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\ref\SERVIDOR.dll
+C:\Users\ruipe\source\repos\SD\SERVIDOR\bin\Debug\net8.0\RabbitMQ.Client.dll
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.csproj.AssemblyReference.cache
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.csproj.Up2Date

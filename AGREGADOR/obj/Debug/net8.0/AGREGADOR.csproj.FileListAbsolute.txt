@@ -43,3 +43,6 @@ C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\refint\AGREGADOR.dll
 C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.pdb
 C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.genruntimeconfig.cache
 C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\ref\AGREGADOR.dll
+C:\Users\ruipe\source\repos\SD\AGREGADOR\bin\Debug\net8.0\RabbitMQ.Client.dll
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.csproj.AssemblyReference.cache
+C:\Users\ruipe\source\repos\SD\AGREGADOR\obj\Debug\net8.0\AGREGADOR.csproj.Up2Date
