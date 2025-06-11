@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "z0DCdC47+ug=",
+  "dgSpecHash": "USAwasv/NQo=",
   "success": true,
   "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\5.2.0\\rabbitmq.client.5.2.0.nupkg.sha512",
-    "C:\\Users\\ruipe\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.15\\microsoft.aspnetcore.app.ref.8.0.15.nupkg.sha512",
-    "C:\\Users\\ruipe\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.15\\microsoft.netcore.app.host.win-x64.8.0.15.nupkg.sha512",
-    "C:\\Users\\ruipe\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.15\\microsoft.netcore.app.ref.8.0.15.nupkg.sha512",
-    "C:\\Users\\ruipe\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.15\\microsoft.windowsdesktop.app.ref.8.0.15.nupkg.sha512"
+    "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\5.2.0\\rabbitmq.client.5.2.0.nupkg.sha512"
   ],
   "logs": []
 }

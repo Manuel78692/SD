@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using SERVIDOR.Services;
 
 class Servidor
 {
@@ -15,10 +16,11 @@ class Servidor
     // Tipos de dados válidos
     private static readonly string[] tiposValidos = {
         "gps", "gyro", "humidade", "ph", "temperatura"
-    };
-
-    // Mutex para garantir a exclusão mútua ao escrever no arquivo CSV
+    };    // Mutex para garantir a exclusão mútua ao escrever no arquivo CSV
     private static readonly Mutex wavysFileMutex = new Mutex();
+
+    // Database service for sensor data operations
+    private static readonly SensorDataService sensorDataService = new SensorDataService();
 
     public static void Main()
     {
@@ -124,20 +126,33 @@ class Servidor
         {
             Console.WriteLine("Erro ao processar conexão: " + ex.Message + "\n");
         }
-    }
-    private static void ProcessaBloco(string[] bloco, string tipo)
+    }    private static void ProcessaBloco(string[] bloco, string tipo)
     {
         /*
             Cada linha do AGREGADOR vem no formato seguinte: "WAVY_ID:data:date_of_reading"
             Já que a mensagem vem com um HEADER do tipo "BLOCK [size] TYPE [data_type]", o tipo de dados já está declarado
 
-            O que o SERVIDOR faz é separar os dados e guardá-los no respectivo ficheiro CSV
-            O formato do CSV é "WAVY_ID:Dado:Timestamp"
+            O SERVIDOR agora salva os dados tanto na base de dados SQLite quanto nos ficheiros CSV
+            O formato do CSV continua: "WAVY_ID:Dado:Timestamp"
 
             O SERVIDOR deve verificar se o tipo de dado é válido, caso contrário, não guarda nada
         */
         if (Array.Exists(tiposValidos, t => t == tipo))
         {
+            // First, try to save to database
+            try
+            {
+                var task = sensorDataService.SaveSensorDataAsync(bloco, tipo);
+                task.Wait(); // Since this is a console app, we'll wait synchronously
+                Console.WriteLine($"Bloco de dados do tipo '{tipo}' salvo na base de dados com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao salvar dados do tipo '{tipo}' na base de dados: {ex.Message}");
+                Console.WriteLine("Continuando com salvamento em CSV como fallback...");
+            }
+
+            // Also save to CSV file (for backup/redundancy)
             string filePath = Path.Combine(dataFolder, tipo + ".csv");
             wavysFileMutex.WaitOne();
             try
@@ -147,11 +162,11 @@ class Servidor
                     foreach (string linha in bloco)
                         sw.WriteLine(linha);
                 }
-                Console.WriteLine($"Bloco de dados do tipo '{tipo}' salvo com sucesso.");
+                Console.WriteLine($"Bloco de dados do tipo '{tipo}' também salvo em CSV.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao salvar bloco de dados do tipo '{tipo}': {ex.Message}");
+                Console.WriteLine($"Erro ao salvar bloco de dados do tipo '{tipo}' em CSV: {ex.Message}");
             }
             finally
             {
