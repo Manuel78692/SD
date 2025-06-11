@@ -61,3 +61,6 @@ C:/Users/ruipe/source/repos/SD/WAVY/obj/Debug/net8.0/ref/WAVY.dll
 /Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/WAVY.pdb
 /Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/WAVY.genruntimeconfig.cache
 /Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/ref/WAVY.dll
+/Users/manuelpinho/Documents/GitHub/SD/WAVY/bin/Debug/net8.0/RabbitMQ.Client.dll
+/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/WAVY.csproj.AssemblyReference.cache
+/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/Debug/net8.0/WAVY.csproj.Up2Date

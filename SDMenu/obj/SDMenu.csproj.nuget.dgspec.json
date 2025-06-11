@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/SDMenu.csproj": {}
+    "/Users/manuelpinho/Documents/GitHub/SD/SDMenu/SDMenu.csproj": {}
   },
   "projects": {
-    "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
         "projectName": "AGREGADOR",
-        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
-        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/obj/",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -60,40 +60,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.osx-arm64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/SDMenu.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/SDMenu/SDMenu.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/SDMenu.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/SDMenu/SDMenu.csproj",
         "projectName": "SDMenu",
-        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/SDMenu.csproj",
-        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/obj/",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/SDMenu/SDMenu.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/SDMenu/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -105,14 +91,14 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
-                "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj"
+              "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
+                "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj"
               },
-              "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
-                "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj"
+              "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
+                "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj"
               },
-              "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {
-                "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj"
+              "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj": {
+                "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj"
               }
             }
           }
@@ -127,7 +113,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -148,21 +134,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
         "projectName": "SERVIDOR",
-        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
-        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/obj/",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -186,7 +172,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -208,40 +194,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.osx-arm64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
         "projectName": "WAVY",
-        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
-        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/obj/",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/WAVY.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/WAVY/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -265,7 +237,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -287,26 +259,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.osx-arm64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
