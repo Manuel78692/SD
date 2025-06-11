@@ -1,6 +1,4 @@
-C:/Users/ruipe/source/repos/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR.exe
 C:/Users/ruipe/source/repos/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR.deps.json
-C:/Users/ruipe/source/repos/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR.runtimeconfig.json
 C:/Users/ruipe/source/repos/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR.dll
 C:/Users/ruipe/source/repos/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR.pdb
 C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/SERVIDOR.GeneratedMSBuildEditorConfig.editorconfig
@@ -11,7 +9,6 @@ C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/SERVIDOR.sourcelink.jso
 C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/SERVIDOR.dll
 C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/refint/SERVIDOR.dll
 C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/SERVIDOR.pdb
-C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/SERVIDOR.genruntimeconfig.cache
 C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/ref/SERVIDOR.dll
 /Users/manuelpinho/Desktop/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR
 /Users/manuelpinho/Desktop/SD/SERVIDOR/bin/Debug/net8.0/SERVIDOR.deps.json
@@ -62,3 +59,16 @@ C:/Users/ruipe/source/repos/SD/SERVIDOR/obj/Debug/net8.0/ref/SERVIDOR.dll
 /Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/obj/Debug/net8.0/refint/SERVIDOR.dll
 /Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/obj/Debug/net8.0/SERVIDOR.pdb
 /Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/obj/Debug/net8.0/ref/SERVIDOR.dll
+C:\Users\ruipe\source\repos\SD\SERVIDOR\bin\Debug\net8.0\SERVIDOR.deps.json
+C:\Users\ruipe\source\repos\SD\SERVIDOR\bin\Debug\net8.0\SERVIDOR.dll
+C:\Users\ruipe\source\repos\SD\SERVIDOR\bin\Debug\net8.0\SERVIDOR.pdb
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.csproj.AssemblyReference.cache
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.AssemblyInfoInputs.cache
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.AssemblyInfo.cs
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.csproj.CoreCompileInputs.cache
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.sourcelink.json
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.dll
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\refint\SERVIDOR.dll
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\SERVIDOR.pdb
+C:\Users\ruipe\source\repos\SD\SERVIDOR\obj\Debug\net8.0\ref\SERVIDOR.dll

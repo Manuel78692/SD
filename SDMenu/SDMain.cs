@@ -11,40 +11,17 @@ class SDMain
 {
     private static Task? _tarefaEnvioDadosWavy;
     private static Task? _tarefaAgregador;
-    static List<string> logsServidor = new List<string>();
-    static Servidor servidor = new Servidor();
+    private static Task? _tarefaServidor;
+    // static List<string> logsServidor = new List<string>();
+    // static Servidor servidor = new Servidor();
 
     public static async Task Main(string[] args)
     {
-        // Inicializar WAVYs
+        // Inicializar Mains
         WavyMain.Init();
         AgregadorMain.Init();
-        //SERVIDOR.Servidor.Init();
-
-        // Iniciar envio de dados das WAVYs em background
-        //_tarefaEnvioDadosWavy = Task.Run(() => WavyMain.MostrarEnvioDados());
-
-        // Inicializar Agregadores
-        //_tarefaAgregador = Task.Run(() => AgregadorMain.Main());
-
-        // Inicializar servidor de análise
-        //_ = Task.Run(() => AnaliseRPCServer.Start());
-        // 1. Inicializar lista para guardar os logs
-        //List<string> logsServidor = new List<string>();
-
-        // 2. Criar e iniciar o servidor numa thread
-        //List<string> logsServidor = new List<string>();
-
-        //Servidor servidor = new Servidor();
-        servidor.OnLogEntry += (msg) =>
-        {
-            string log = $"[{DateTime.Now:HH:mm:ss}] {msg}";
-            logsServidor.Add(log);
-        };
-
-        Thread servidorThread = new Thread(() => servidor.Init());
-        servidorThread.Start();
-
+        ServidorMain.Init();
+        
         while (true)
         {
             Console.Clear();
@@ -61,7 +38,7 @@ class SDMain
                     await MenuWavy();
                     break;
                 case "2":
-                    await  MenuAgregador();
+                    await MenuAgregador();
                     break;
                 case "3":
                     await MenuServidor();
@@ -138,7 +115,7 @@ class SDMain
                         _tarefaAgregador = Task.Run(() => AgregadorMain.MostrarLogsAgregadores());
                     }
                     // Aguarda ou mostra progresso
-                    await AgregadorMain.MostrarLogsAgregadores();
+                    await _tarefaAgregador;
                     break;
                 case "2":
                     Console.WriteLine("=== Informações Pós-Processadas pelo PREPROCESSAMENTORRPC ===");
@@ -264,21 +241,13 @@ class SDMain
                     Console.ReadKey();
                     break;
                 case "3":
-                    Console.Clear();
-                    Console.WriteLine("=== LOGS DO SERVIDOR ===\n");
-
-                    if (logsServidor.Count == 0)
+                    if (_tarefaServidor == null || _tarefaServidor.IsCompleted)
                     {
-                        Console.WriteLine("Nenhum log disponível.");
+                        // Inicia a tarefa em background
+                        _tarefaServidor = Task.Run(() => ServidorMain.MostrarLogsServidor());
                     }
-                    else
-                    {
-                        foreach (var log in logsServidor)
-                            Console.WriteLine(log);
-                    }
-
-                    Console.WriteLine("\nPressione qualquer tecla para voltar...");
-                    Console.ReadKey();
+                    // Aguarda ou mostra progresso
+                    await _tarefaServidor;
                     break;
                 case "4":
                     return;

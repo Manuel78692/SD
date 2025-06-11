@@ -31,7 +31,7 @@ namespace AGREGADOR
             servidorPort = _servidorPort;
         }
 
-         public string GetId()
+        public string GetId()
         {
             return id;
         }

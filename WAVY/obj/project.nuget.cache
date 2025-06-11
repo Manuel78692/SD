@@ -1,15 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "K+UXRoEkjd4=",
+  "dgSpecHash": "ggeQxA/P4pk=",
   "success": true,
-  "projectFilePath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj",
+  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj",
   "expectedPackageFiles": [
-    "/Users/pantufeiro/.nuget/packages/rabbitmq.client/6.4.0/rabbitmq.client.6.4.0.nupkg.sha512",
-    "/Users/pantufeiro/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
-    "/Users/pantufeiro/.nuget/packages/system.threading.channels/4.7.1/system.threading.channels.4.7.1.nupkg.sha512",
-    "/Users/pantufeiro/.nuget/packages/microsoft.netcore.app.ref/8.0.16/microsoft.netcore.app.ref.8.0.16.nupkg.sha512",
-    "/Users/pantufeiro/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.16/microsoft.aspnetcore.app.ref.8.0.16.nupkg.sha512",
-    "/Users/pantufeiro/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.16/microsoft.netcore.app.host.osx-arm64.8.0.16.nupkg.sha512"
+    "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\6.4.0\\rabbitmq.client.6.4.0.nupkg.sha512",
+    "C:\\Users\\ruipe\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\ruipe\\.nuget\\packages\\system.threading.channels\\4.7.1\\system.threading.channels.4.7.1.nupkg.sha512"
   ],
   "logs": []
 }

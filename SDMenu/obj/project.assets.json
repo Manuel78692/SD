@@ -170,38 +170,46 @@
     ]
   },
   "packageFolders": {
-    "/Users/pantufeiro/.nuget/packages/": {}
+    "C:\\Users\\ruipe\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/SDMenu.csproj",
+      "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\SDMenu\\SDMenu.csproj",
       "projectName": "SDMenu",
-      "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/SDMenu.csproj",
-      "packagesPath": "/Users/pantufeiro/.nuget/packages/",
-      "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/SDMenu/obj/",
+      "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SDMenu\\SDMenu.csproj",
+      "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SDMenu\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\ruipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
-              "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj"
+            "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\AGREGADOR.csproj": {
+              "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\AGREGADOR.csproj"
             },
-            "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
-              "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj"
+            "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\SERVIDOR.csproj": {
+              "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\SERVIDOR.csproj"
             },
-            "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj": {
-              "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/WAVY/WAVY.csproj"
+            "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj": {
+              "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj"
             }
           }
         }
@@ -237,7 +245,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
