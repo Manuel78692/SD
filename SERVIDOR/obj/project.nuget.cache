@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "6NoEq2raBEA=",
+  "dgSpecHash": "aOgKl14y0FM=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\SERVIDOR.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
+  "expectedPackageFiles": [
+    "/Users/pantufeiro/.nuget/packages/rabbitmq.client/6.4.0/rabbitmq.client.6.4.0.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/system.threading.channels/4.7.1/system.threading.channels.4.7.1.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/microsoft.netcore.app.ref/8.0.16/microsoft.netcore.app.ref.8.0.16.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.16/microsoft.aspnetcore.app.ref.8.0.16.nupkg.sha512"
+  ],
   "logs": []
 }

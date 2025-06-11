@@ -4,250 +4,276 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Globalization;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
-class Agregador
+namespace AGREGADOR
 {
-    // Porta para escutar as conexões das WAVYs
-    private static readonly int PortWavy = 5001;
-    // Dados do Servidor para encaminhamento (se necessário)
-    private static readonly string ServidorIP = "127.0.0.1";
-    private static readonly int PortServidor = 5000;
-    
-    // Pasta onde estão os CSV's (deve existir)
-    private static readonly string dataFolder = "data";
-    // Tipos de dados válidos
-    private static readonly string[] tiposValidos = {
-        "Humidade", "Temperatura", "PH", "Acelerometro", "Gyroscopio", "GPS", "Timestamp"
-    };
-    
-    // Objeto de lock único para escrita nos ficheiros
-    private static readonly object fileLock = new object();
-
-    public static void Main()
+    public class Agregador // ← Corrigido aqui!
     {
-        // Verifica se a pasta "data" existe
-        if (!Directory.Exists(dataFolder))
+        private string id;
+        private readonly int port;
+        private readonly string servidorIp;
+        private readonly int servidorPort;
+        private readonly string dataFolder = "dados";
+        private string? agregadorFilePath;
+        private readonly Mutex wavysFileMutex = new Mutex();   
+
+        public event Action<string>? OnLogEntry; 
+        public Agregador(string _id, int _port, string _servidorIp, int _servidorPort)
         {
-            Console.WriteLine("Erro: Pasta 'data/' não existe.");
-            return;
+            id = _id;
+            port = _port;
+            servidorIp = _servidorIp;
+            servidorPort = _servidorPort;
         }
 
-        // Inicializa os ficheiros CSV (só cria se não existirem)
-        InitializeCSVs();
+         public string GetId()
+        {
+            return id;
+        }
+        private void Log(string message)
+        {
+            
+            OnLogEntry?.Invoke(message);
+        }
 
-        // Inicia o listener para conexões das WAVYs
-        TcpListener listener = new TcpListener(IPAddress.Any, PortWavy);
-        listener.Start();
-        Console.WriteLine("Agregador iniciado na porta " + PortWavy + ". Aguardando conexões das WAVYs...");
+        public void Run()
+        {
+            if (!Directory.Exists(dataFolder))
+            {
+                Log($"Erro: Pasta '{dataFolder}/' não existe.\n");
+                return;
+            }
 
-        while (true)
+            InitializeCSV();
+
+            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
+            Log("Agregador iniciado na porta " + port + ". Aguardando conexões das WAVYs...");
+
+            while (true)
+            {
+                try
+                {
+                    TcpClient client = listener.AcceptTcpClient();
+                    Log("Conexão de uma WAVY recebida.\n");
+                    Task.Run(() => ProcessaWavy(client));
+                }
+                catch (Exception ex)
+                {
+                    Log("Erro ao aceitar conexão: " + ex.Message + "\n");
+                }
+            }
+        }
+
+        private void InitializeCSV()
+        {
+            agregadorFilePath = $"wavys_{id}.csv";
+            string filePath = Path.Combine(dataFolder, agregadorFilePath);
+            if (!File.Exists(filePath))
+            {
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    writer.WriteLine("WAVY_ID:status:[data_types]:last_sync");
+                }
+                Log($"Arquivo '{agregadorFilePath}' criado na pasta '{dataFolder}'.");
+            }
+        }
+
+        private async Task ProcessaWavy(TcpClient client)
         {
             try
             {
-                TcpClient client = listener.AcceptTcpClient();
-                Console.WriteLine("Conexão de uma WAVY recebida.");
-                Thread clientThread = new Thread(() => ProcessaWavy(client));
-                clientThread.Start();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message);
-            }
-        }
-    }
-
-    private static void InitializeCSVs()
-    {
-        lock (fileLock)
-        {
-            // Para cada tipo válido, assegura que o ficheiro CSV existe com o cabeçalho no formato definido.
-            foreach (string tipo in tiposValidos)
-            {
-                string path = Path.Combine(dataFolder, tipo + ".csv");
-                if (!File.Exists(path))
+                using (client)
                 {
-                    using (StreamWriter sw = new StreamWriter(path))
+                    NetworkStream stream = client.GetStream();
+                    using (StreamReader reader = new StreamReader(stream))
+                    using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                     {
-                        // Cabeçalho: Wavy_ID:Status:[Data_type]:last_sync
-                        sw.WriteLine($"Wavy_ID:Status:[{tipo}]:last_sync");
-                    }
-                }
-            }
-        }
-    }
+                        string? header = reader.ReadLine();
+                        Log("Header recebido: " + header);
 
-    private static void ProcessaWavy(TcpClient client)
-    {
-        try
-        {
-            using (client)
-            {
-                NetworkStream stream = client.GetStream();
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
-                {
-                    // Exemplo de header: "BLOCK 1", indicando que haverá um bloco com 1 linha.
-                    string header = reader.ReadLine();
-                    Console.WriteLine("Header recebido: " + header);
-
-                    if (header != null && header.StartsWith("BLOCK"))
-                    {
-                        string[] partesHeader = header.Split(' ');
-                        if (partesHeader.Length == 2 && int.TryParse(partesHeader[1], out int numLinhas))
+                        if (header != null && header.StartsWith("BLOCK"))
                         {
-                            string[] bloco = new string[numLinhas];
-                            for (int i = 0; i < numLinhas; i++)
+                            string[] partes = header.Split(' ');
+                            if (partes.Length == 4 && int.TryParse(partes[1], out int numLinhas) && partes[2] == "STATUS")
                             {
-                                bloco[i] = reader.ReadLine();
+                                string status = partes[3];
+                                string[] bloco = new string[numLinhas];
+                                for (int i = 0; i < numLinhas; i++)
+                                {
+                                    bloco[i] = reader.ReadLine() ?? string.Empty;
+                                }
+
+                                Log("Bloco de dados recebido:");
+                                foreach (string linha in bloco)
+                                    Log(linha);
+
+                                await ProcessaBlocoAsync(bloco, status);
+
+                                writer.WriteLine("ACK");
+                                Log("ACK enviado à WAVY.\n");
                             }
-                            
-                            // Agora, 'bloco' contém todas as linhas enviadas pela WAVY.
-                            Console.WriteLine("Bloco de dados recebido:");
-                            foreach (string linha in bloco)
+                            else
                             {
-                                Console.WriteLine(linha);
-                            }
-                            
-                            // Processa o bloco conforme necessário
-                            ProcessaBloco(bloco);
-
-                            // Envia ACK para confirmar o recebimento do bloco
-                            writer.WriteLine("ACK");
-                            Console.WriteLine("ACK enviado à WAVY.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Formato de header inválido.");
-                            writer.WriteLine("ERRO: Formato de header inválido.");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Header não identificado.");
-                        writer.WriteLine("ERRO: Header não identificado.");
-                    }
-                }
-            }
-            // Envia dados para o servidor
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Erro ao processar dados da WAVY: " + ex.Message);
-        }
-    }
-
-    private static void ProcessaBloco(string[] bloco)
-    {
-        // Cada linha do bloco tem o formato:
-        // "WAVY_ID:STATUS:[Tipo1=Timestamp1, Tipo2=Timestamp2, ...]"
-        foreach (string linha in bloco)
-        {
-            try
-            {
-                // Separa a parte inicial ("WAVY_ID:STATUS") dos dados.
-                string[] partes = linha.Split(new char[] {':'}, 3);
-                if (partes.Length < 3)
-                {
-                    Console.WriteLine("Linha com formato inesperado: " + linha);
-                    continue;
-                }
-
-                string wavyId = partes[0].Trim();
-                string status = partes[1].Trim();
-                // A parte restante contém os dados entre parenteses retos
-                string dadosComPR = partes[2].Trim();
-                if (dadosComPR.StartsWith("[") && dadosComPR.EndsWith("]"))
-                {
-                    string dadosConteudo = dadosComPR.Substring(1, dadosComPR.Length - 2);
-                    // Divide os pares "Tipo=Timestamp" usando a vírgula
-                    string[] pares = dadosConteudo.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (string par in pares)
-                    {
-                        string[] info = par.Split('=');
-                        if (info.Length != 2)
-                        {
-                            Console.WriteLine("Formato de par inválido: " + par);
-                            continue;
-                        }
-                        
-                        string tipo = info[0].Trim();
-                        string timestampRecebido = info[1].Trim();
-
-                        if (!Array.Exists(tiposValidos, t => t.Equals(tipo, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            Console.WriteLine("Tipo de dado '" + tipo + "' não é válido. Ignorando.");
-                            continue;
-                        }
-
-                        // Tenta converter o timestamp para DateTime usando o formato "yyyy-MM-dd HH:mm:ss".
-                        DateTime timestamp;
-                        if (!DateTime.TryParseExact(timestampRecebido, "yyyy-MM-dd HH:mm:ss", 
-                                CultureInfo.InvariantCulture, DateTimeStyles.None, out timestamp))
-                        {
-                            Console.WriteLine("Timestamp inválido para " + tipo + ". Usando a hora atual.");
-                            timestamp = DateTime.Now;
-                        }
-
-                        // Formata o timestamp para "YYYY-MM-DD-HH-mm-ss"
-                        string timestampFormatado = timestamp.ToString("yyyy-MM-dd-HH-mm-ss");
-
-                        // Linha do CSV no formato: Wavy_ID:Status:[Data_type]:last_sync
-                        string linhaCSV = $"{wavyId}:{status}:[{tipo}]:{timestampFormatado}";
-                        string caminhoCSV = Path.Combine(dataFolder, tipo + ".csv");
-
-                        lock (fileLock)
-                        {
-                            using (StreamWriter sw = new StreamWriter(caminhoCSV, true))
-                            {
-                                sw.WriteLine(linhaCSV);
+                                Log("Formato de header inválido.\n");
                             }
                         }
-                        Console.WriteLine($"Dados para '{tipo}' atualizados com sucesso no CSV.");
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Dados do bloco sem formatação de Parenteses retos " + dadosComPR);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao processar a linha do bloco: " + ex.Message);
+                Log("Erro ao processar bloco: " + ex.Message + "\n");
             }
         }
-    }
 
-    // Exemplo de método para encaminhar dados para o Servidor (caso seja necessário)
-    private static void EncaminhaParaServidor(string dados)
-    {
-        // No servidor, existem .csv para cada tipo de dados
-        // O que o AGREGADOR deverá fazer é enviar os dados separados por tipo de dados
-        try
+        private async Task ProcessaBlocoAsync(string[] bloco, string status)
         {
-            using (TcpClient clienteServidor = new TcpClient(ServidorIP, PortServidor))
-            {
-                NetworkStream stream = clienteServidor.GetStream();
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
-                {
-                    // Envia os dados para o Servidor
-                    writer.WriteLine(dados);
-                    Console.WriteLine("Dados encaminhados ao Servidor: " + dados);
+            var factory = new ConnectionFactory() { HostName = "localhost" };
+            using var connection = factory.CreateConnection();
+            using var channel = connection.CreateModel();
 
-                    // Aguarda ACK do Servidor
-                    string resposta = reader.ReadLine();
+            var queueName = "rpc_preprocessamento";
+            var correlationId = Guid.NewGuid().ToString();
+            var replyQueue = channel.QueueDeclare().QueueName;
+
+            var props = channel.CreateBasicProperties();
+            props.CorrelationId = correlationId;
+            props.ReplyTo = replyQueue;
+
+            var request = new { Bloco = bloco, Status = status };
+            var messageBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
+
+            var tcs = new TaskCompletionSource<string?>();
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (model, ea) =>
+            {
+                if (ea.BasicProperties.CorrelationId == correlationId)
+                {
+                    var response = System.Text.Encoding.UTF8.GetString(ea.Body.ToArray());
+                    tcs.TrySetResult(response);
+                }
+            };
+            channel.BasicConsume(consumer: consumer, queue: replyQueue, autoAck: true);
+
+            channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: props, body: messageBytes);
+
+            string? response = null;
+            try
+            {
+                response = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            }
+            catch (TimeoutException)
+            {
+                Log("Timeout à espera da resposta do serviço de pré-processamento.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(response))
+            {
+                Log("Resposta vazia do serviço de pré-processamento.");
+                return;
+            }
+
+            PreProcessamentoResultado? resultado = null;
+            try
+            {
+                resultado = JsonSerializer.Deserialize<PreProcessamentoResultado>(response);
+            }
+            catch (Exception ex)
+            {
+                Log($"Erro ao desserializar resposta do pré-processamento: {ex.Message}");
+                return;
+            }
+
+            if (resultado == null)
+            {
+                Log("Resultado do pré-processamento é nulo.");
+                return;
+            }
+
+            // // ADICIONA AQUI O DEBUG:
+            // Console.WriteLine("DEBUG - Quantidade de tipos em DadosSensor: " + resultado.DadosSensor.Count);
+            // foreach (var tipo in resultado.DadosSensor.Keys)
+            // {
+            //     Console.WriteLine($"DEBUG - Tipo: {tipo}, Leituras: {resultado.DadosSensor[tipo].Count}");
+            // }
+
+            // Console.WriteLine("DEBUG - Resposta do RPC:");
+            // Console.WriteLine(response);
+
+            string linhaCSV = $"{resultado.WavyId}:{resultado.Status}:[{resultado.Tipos}]:{resultado.Timestamp}";
+            string filePath = Path.Combine(dataFolder, agregadorFilePath ?? $"wavys_{id}.csv");
+
+            wavysFileMutex.WaitOne();
+            try
+            {
+                using StreamWriter writer = new StreamWriter(filePath, append: true);
+                foreach (var tipo in resultado.DadosSensor.Keys)
+                {
+                    foreach (var leitura in resultado.DadosSensor[tipo])
+                    {
+                        writer.WriteLine(leitura); // Exemplo: WAVY01:123:2024-06-11-12-00-00
+                    }
+                }
+                Log($"Dados das WAVYs adicionados ao arquivo '{filePath}'.");
+            }
+            catch (Exception ex)
+            {
+                Log("Erro ao escrever no arquivo CSV: " + ex.Message);
+            }
+            finally
+            {
+                wavysFileMutex.ReleaseMutex();
+            }
+
+            EncaminhaParaServidor(resultado.DadosSensor);
+        }
+
+        private void EncaminhaParaServidor(Dictionary<string, List<string>> dados)
+        {
+            try
+            {
+                foreach (var entry in dados)
+                {
+                    using TcpClient clienteServidor = new TcpClient(servidorIp, servidorPort);
+                    NetworkStream stream = clienteServidor.GetStream();
+                    using StreamReader reader = new StreamReader(stream);
+                    using StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
+
+                    string tipoDado = entry.Key;
+                    List<string> valores = entry.Value;
+
+                    writer.WriteLine($"BLOCK {valores.Count} TYPE {tipoDado}");
+                    foreach (string valor in valores)
+                        writer.WriteLine(valor);
+
+                    string? resposta = reader.ReadLine();
                     if (resposta == "ACK")
-                    {
-                        Console.WriteLine("ACK recebido do Servidor.");
-                    }
+                        Log("ACK recebido do Servidor.\n");
+                    else
+                        Log("Resposta inesperada: " + resposta + "\n");
                 }
             }
+            catch (Exception ex)
+            {
+                Log("Erro ao encaminhar dados para o Servidor: " + ex.Message + "\n");
+            }
         }
-        catch (Exception ex)
+
+        private class PreProcessamentoResultado
         {
-            Console.WriteLine("Erro ao encaminhar dados para o Servidor: " + ex.Message);
+            public Dictionary<string, List<string>> DadosSensor { get; set; } = new();
+            public string WavyId { get; set; } = string.Empty;
+            public string Status { get; set; } = string.Empty;
+            public string Timestamp { get; set; } = string.Empty;
+            public string Tipos { get; set; } = string.Empty;
+            public string[] Bloco { get; set; } = Array.Empty<string>();
         }
     }
 }
-
