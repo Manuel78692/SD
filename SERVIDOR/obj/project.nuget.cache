@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "08qjnboSVLY=",
+  "dgSpecHash": "GFDG286Vd4E=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\SERVIDOR.csproj",
+  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\SERVIDOR\\SERVIDOR.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ruipe\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\ruipe\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
