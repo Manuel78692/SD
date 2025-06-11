@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "USAwasv/NQo=",
+  "dgSpecHash": "iAcqrHqnfxc=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\WAVY\\WAVY.csproj",
+  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\WAVY\\WAVY.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\5.2.0\\rabbitmq.client.5.2.0.nupkg.sha512"
   ],

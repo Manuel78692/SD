@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "t4GBOYmwvWI=",
+  "dgSpecHash": "iszrOlYbAHw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\AGREGADOR\\AGREGADOR.csproj",
+  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\5.2.0\\rabbitmq.client.5.2.0.nupkg.sha512"
   ],
