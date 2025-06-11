@@ -4,10 +4,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-class Servidor
+namespace SERVIDOR{
+public class Servidor
 {
+    
     // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
-    private static readonly int port = 5001;
+    private static readonly int port = 5010;
 
     // Pasta onde irá guardar os dados
     private static readonly string dataFolder = "dados";
@@ -20,12 +22,19 @@ class Servidor
     // Mutex para garantir a exclusão mútua ao escrever no arquivo CSV
     private static readonly Mutex wavysFileMutex = new Mutex();
 
-    public static void Main()
+    public event Action<string>? OnLogEntry;
+
+    public void Log(string msg)
+    {
+        OnLogEntry?.Invoke(msg);
+    }
+
+    public void Init()
     {
         // Verifica se a pasta "dados" existe
         if (!Directory.Exists(dataFolder))
         {
-            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.\n");
+            this.Log($"Erro: Pasta '{dataFolder}/' não existe.\n");
             return;
         }
 
@@ -33,22 +42,25 @@ class Servidor
 
         TcpListener listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
-        Console.WriteLine("Servidor iniciado. Aguardando conexões...\n");
+        this.Log("Servidor iniciado. Aguardando conexões...\n");
 
+        Task.Run(() =>
+        {
         while (true)
         {
             try
             {
                 TcpClient client = listener.AcceptTcpClient();
-                Console.WriteLine("Conexão recebida.");
-                Thread clientThread = new Thread(() => ProcessaAgregador(client));
+                this.Log("Conexão recebida.");
+                Thread clientThread = new Thread(() => this.ProcessaAgregador(client));
                 clientThread.Start();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message + "\n");
+                this.Log("Erro ao aceitar conexão: " + ex.Message + "\n");
             }
         }
+        });
     }
 
     // Esta função cria os ficheiros CSV dos tipos de dados, se não existir
@@ -68,7 +80,7 @@ class Servidor
     }
 
     // Esta função processa os dados recebidos dos AGREGADORes
-    private static void ProcessaAgregador(TcpClient client)
+    private void ProcessaAgregador(TcpClient client)
     {
         try
         {
@@ -82,7 +94,7 @@ class Servidor
                     string header = reader.ReadLine();
                     if (!string.IsNullOrEmpty(header))
                     {
-                        Console.WriteLine("Header recebido: " + header);
+                        this.Log("Header recebido: " + header);
 
                         if (header != null && header.StartsWith("BLOCK"))
                         {
@@ -100,21 +112,21 @@ class Servidor
                                 
                                 // Agora, 'bloco' contém todas as linhas enviadas pelo AGREGADOR.
                                 // Debug : Faz print do bloco de dados recebido
-                                Console.WriteLine("Bloco de dados recebido:");
+                                this.Log("Bloco de dados recebido:");
                                 foreach (string linha in bloco)
-                                    Console.WriteLine(linha);
+                                    this.Log(linha);
 
                                 // Processa o bloco conforme necessário
-                                ProcessaBloco(bloco, tipo);
+                                this.ProcessaBloco(bloco, tipo);
 
                                 // Envia o ACK para confirmar o recebimento do bloco
                                 writer.WriteLine("ACK");
-                                Console.WriteLine("ACK enviado ao AGREGADOR.\n");
+                                this.Log("ACK enviado ao AGREGADOR.\n");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Formato de header inválido.\n");
+                            this.Log("Formato de header inválido.\n");
                         }
                     }
                 }
@@ -122,10 +134,10 @@ class Servidor
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao processar conexão: " + ex.Message + "\n");
+            this.Log("Erro ao processar conexão: " + ex.Message + "\n");
         }
     }
-    private static void ProcessaBloco(string[] bloco, string tipo)
+    private void ProcessaBloco(string[] bloco, string tipo)
     {
         /*
             Cada linha do AGREGADOR vem no formato seguinte: "WAVY_ID:data:date_of_reading"
@@ -147,11 +159,11 @@ class Servidor
                     foreach (string linha in bloco)
                         sw.WriteLine(linha);
                 }
-                Console.WriteLine($"Bloco de dados do tipo '{tipo}' salvo com sucesso.");
+                this.Log($"Bloco de dados do tipo '{tipo}' salvo com sucesso.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao salvar bloco de dados do tipo '{tipo}': {ex.Message}");
+                this.Log($"Erro ao salvar bloco de dados do tipo '{tipo}': {ex.Message}");
             }
             finally
             {
@@ -160,7 +172,8 @@ class Servidor
         }
         else
         {
-            Console.WriteLine($"Tipo de dado '{tipo}' inválido. Bloco descartado.");
+            this.Log($"Tipo de dado '{tipo}' inválido. Bloco descartado.");
         }
     }
+}
 }

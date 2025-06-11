@@ -22,6 +22,7 @@ namespace AGREGADOR
         private string? agregadorFilePath;
         private readonly Mutex wavysFileMutex = new Mutex();   
 
+        public event Action<string>? OnLogEntry; 
         public Agregador(string _id, int _port, string _servidorIp, int _servidorPort)
         {
             id = _id;
@@ -30,11 +31,21 @@ namespace AGREGADOR
             servidorPort = _servidorPort;
         }
 
+         public string GetId()
+        {
+            return id;
+        }
+        private void Log(string message)
+        {
+            
+            OnLogEntry?.Invoke(message);
+        }
+
         public void Run()
         {
             if (!Directory.Exists(dataFolder))
             {
-                Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.\n");
+                Log($"Erro: Pasta '{dataFolder}/' não existe.\n");
                 return;
             }
 
@@ -42,19 +53,19 @@ namespace AGREGADOR
 
             TcpListener listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
-            Console.WriteLine("Agregador iniciado na porta " + port + ". Aguardando conexões das WAVYs...");
+            Log("Agregador iniciado na porta " + port + ". Aguardando conexões das WAVYs...");
 
             while (true)
             {
                 try
                 {
                     TcpClient client = listener.AcceptTcpClient();
-                    Console.WriteLine("Conexão de uma WAVY recebida.\n");
+                    Log("Conexão de uma WAVY recebida.\n");
                     Task.Run(() => ProcessaWavy(client));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Erro ao aceitar conexão: " + ex.Message + "\n");
+                    Log("Erro ao aceitar conexão: " + ex.Message + "\n");
                 }
             }
         }
@@ -69,7 +80,7 @@ namespace AGREGADOR
                 {
                     writer.WriteLine("WAVY_ID:status:[data_types]:last_sync");
                 }
-                Console.WriteLine($"Arquivo '{agregadorFilePath}' criado na pasta '{dataFolder}'.");
+                Log($"Arquivo '{agregadorFilePath}' criado na pasta '{dataFolder}'.");
             }
         }
 
@@ -84,7 +95,7 @@ namespace AGREGADOR
                     using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
                     {
                         string? header = reader.ReadLine();
-                        Console.WriteLine("Header recebido: " + header);
+                        Log("Header recebido: " + header);
 
                         if (header != null && header.StartsWith("BLOCK"))
                         {
@@ -98,18 +109,18 @@ namespace AGREGADOR
                                     bloco[i] = reader.ReadLine() ?? string.Empty;
                                 }
 
-                                Console.WriteLine("Bloco de dados recebido:");
+                                Log("Bloco de dados recebido:");
                                 foreach (string linha in bloco)
-                                    Console.WriteLine(linha);
+                                    Log(linha);
 
                                 await ProcessaBlocoAsync(bloco, status);
 
                                 writer.WriteLine("ACK");
-                                Console.WriteLine("ACK enviado à WAVY.\n");
+                                Log("ACK enviado à WAVY.\n");
                             }
                             else
                             {
-                                Console.WriteLine("Formato de header inválido.\n");
+                                Log("Formato de header inválido.\n");
                             }
                         }
                     }
@@ -117,7 +128,7 @@ namespace AGREGADOR
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao processar bloco: " + ex.Message + "\n");
+                Log("Erro ao processar bloco: " + ex.Message + "\n");
             }
         }
 
@@ -159,13 +170,13 @@ namespace AGREGADOR
             }
             catch (TimeoutException)
             {
-                Console.WriteLine("Timeout à espera da resposta do serviço de pré-processamento.");
+                Log("Timeout à espera da resposta do serviço de pré-processamento.");
                 return;
             }
 
             if (string.IsNullOrEmpty(response))
             {
-                Console.WriteLine("Resposta vazia do serviço de pré-processamento.");
+                Log("Resposta vazia do serviço de pré-processamento.");
                 return;
             }
 
@@ -176,13 +187,13 @@ namespace AGREGADOR
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao desserializar resposta do pré-processamento: {ex.Message}");
+                Log($"Erro ao desserializar resposta do pré-processamento: {ex.Message}");
                 return;
             }
 
             if (resultado == null)
             {
-                Console.WriteLine("Resultado do pré-processamento é nulo.");
+                Log("Resultado do pré-processamento é nulo.");
                 return;
             }
 
@@ -210,11 +221,11 @@ namespace AGREGADOR
                         writer.WriteLine(leitura); // Exemplo: WAVY01:123:2024-06-11-12-00-00
                     }
                 }
-                Console.WriteLine($"Dados das WAVYs adicionados ao arquivo '{filePath}'.");
+                Log($"Dados das WAVYs adicionados ao arquivo '{filePath}'.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao escrever no arquivo CSV: " + ex.Message);
+                Log("Erro ao escrever no arquivo CSV: " + ex.Message);
             }
             finally
             {
@@ -244,14 +255,14 @@ namespace AGREGADOR
 
                     string? resposta = reader.ReadLine();
                     if (resposta == "ACK")
-                        Console.WriteLine("ACK recebido do Servidor.\n");
+                        Log("ACK recebido do Servidor.\n");
                     else
-                        Console.WriteLine("Resposta inesperada: " + resposta + "\n");
+                        Log("Resposta inesperada: " + resposta + "\n");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao encaminhar dados para o Servidor: " + ex.Message + "\n");
+                Log("Erro ao encaminhar dados para o Servidor: " + ex.Message + "\n");
             }
         }
 

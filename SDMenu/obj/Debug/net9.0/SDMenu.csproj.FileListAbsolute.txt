@@ -67,12 +67,6 @@
 /Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/WAVY.deps.json
 /Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/WAVY.runtimeconfig.json
 /Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/WAVY
-/Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/AGREGADOR.deps.json
-/Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/AGREGADOR.runtimeconfig.json
-/Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/AGREGADOR
-/Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/SERVIDOR.deps.json
-/Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/SERVIDOR.runtimeconfig.json
-/Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/SERVIDOR
 /Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/SDMenu
 /Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/SDMenu.deps.json
 /Users/pantufeiro/Documents/GitHub/SD/SDMenu/bin/Debug/net9.0/SDMenu.runtimeconfig.json

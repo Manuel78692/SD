@@ -35,18 +35,30 @@ namespace WAVY
             }
         }
 
+        // public static void ListarWavys()
+        // {
+        //     Console.WriteLine("=== Lista de WAVYs ===");
+        //     if (wavys == null)
+        //     {
+        //         Console.WriteLine("Nenhuma WAVY inicializada.");
+        //         return;
+        //     }
+        //     foreach (var wavy in wavys)
+        //     {
+        //         Console.WriteLine($"ID: {wavy.id}, Estado: {wavy.estadoWavy}");
+        //     }
+        // }
+         // Esta função lista todas as WAVYs existentes
         public static void ListarWavys()
         {
+            Console.Clear();
             Console.WriteLine("=== Lista de WAVYs ===");
-            if (wavys == null)
-            {
-                Console.WriteLine("Nenhuma WAVY inicializada.");
-                return;
-            }
             foreach (var wavy in wavys)
             {
                 Console.WriteLine($"ID: {wavy.id}, Estado: {wavy.estadoWavy}");
             }
+            Console.WriteLine("Pressione qualquer tecla para voltar ao menu...");
+            Console.ReadKey();
         }
 
         public static async Task MostrarEnvioDados()
