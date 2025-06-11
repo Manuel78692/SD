@@ -53,6 +53,9 @@
         }
       },
       "WAVY/1.0.0": {
+        "dependencies": {
+          "RabbitMQ.Client": "6.4.0"
+        },
         "runtime": {
           "WAVY.dll": {
             "assemblyVersion": "1.0.0.0",

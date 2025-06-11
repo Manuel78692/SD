@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AGREGADOR")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0c33bc1a7f17e9e6e50b7a8be2a949cf72f2cbd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a9971822eefdede126d5149330808ab716766d97")]
 [assembly: System.Reflection.AssemblyProductAttribute("AGREGADOR")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AGREGADOR")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

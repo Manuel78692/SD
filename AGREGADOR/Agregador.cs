@@ -186,6 +186,16 @@ namespace AGREGADOR
                 return;
             }
 
+            // // ADICIONA AQUI O DEBUG:
+            // Console.WriteLine("DEBUG - Quantidade de tipos em DadosSensor: " + resultado.DadosSensor.Count);
+            // foreach (var tipo in resultado.DadosSensor.Keys)
+            // {
+            //     Console.WriteLine($"DEBUG - Tipo: {tipo}, Leituras: {resultado.DadosSensor[tipo].Count}");
+            // }
+
+            // Console.WriteLine("DEBUG - Resposta do RPC:");
+            // Console.WriteLine(response);
+
             string linhaCSV = $"{resultado.WavyId}:{resultado.Status}:[{resultado.Tipos}]:{resultado.Timestamp}";
             string filePath = Path.Combine(dataFolder, agregadorFilePath ?? $"wavys_{id}.csv");
 
@@ -193,8 +203,14 @@ namespace AGREGADOR
             try
             {
                 using StreamWriter writer = new StreamWriter(filePath, append: true);
-                writer.WriteLine(linhaCSV);
-                Console.WriteLine($"Estado da WAVY atualizado no arquivo '{filePath}'.");
+                foreach (var tipo in resultado.DadosSensor.Keys)
+                {
+                    foreach (var leitura in resultado.DadosSensor[tipo])
+                    {
+                        writer.WriteLine(leitura); // Exemplo: WAVY01:123:2024-06-11-12-00-00
+                    }
+                }
+                Console.WriteLine($"Dados das WAVYs adicionados ao arquivo '{filePath}'.");
             }
             catch (Exception ex)
             {
