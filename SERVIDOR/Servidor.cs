@@ -5,13 +5,15 @@ using System.Net.Sockets;
 using System.Threading;
 using SERVIDOR.Services;
 
-class Servidor
-{
-    // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
-    private static readonly int port = 5000;
+namespace SERVIDOR{
+    public class Servidor
+    {
+        private string id;   
+        // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
+        private static readonly int port = 5000;
 
-    // Pasta onde irá guardar os dados
-    private static readonly string dataFolder = "dados";
+        // Pasta onde irá guardar os dados
+        private static readonly string dataFolder = "dados";
 
     // Tipos de dados válidos
     private static readonly string[] tiposValidos = {
@@ -22,109 +24,130 @@ class Servidor
     // Database service for sensor data operations
     private static readonly SensorDataService sensorDataService = new SensorDataService();
 
-    public static void Main()
-    {
-        // Verifica se a pasta "dados" existe
-        if (!Directory.Exists(dataFolder))
+        public event Action<string>? OnLogEntry;
+
+        public Servidor()
         {
-            Console.WriteLine($"Erro: Pasta '{dataFolder}/' não existe.\n");
-            return;
+            id = "servidor";
         }
 
-        InitializeCSVs();
-
-        TcpListener listener = new TcpListener(IPAddress.Any, port);
-        listener.Start();
-        Console.WriteLine("Servidor iniciado. Aguardando conexões...\n");
-
-        while (true)
+        public string GetId()
         {
-            try
-            {
-                TcpClient client = listener.AcceptTcpClient();
-                Console.WriteLine("Conexão recebida.");
-                Thread clientThread = new Thread(() => ProcessaAgregador(client));
-                clientThread.Start();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erro ao aceitar conexão: " + ex.Message + "\n");
-            }
+            return id;
         }
-    }
 
-    // Esta função cria os ficheiros CSV dos tipos de dados, se não existir
-    private static void InitializeCSVs()
-    {
-        foreach (string tipo in tiposValidos)
+        public void Log(string msg)
         {
-            string path = Path.Combine(dataFolder, tipo + ".csv");
-            if (!File.Exists(path))
+            OnLogEntry?.Invoke(msg);
+        }
+
+        public void Run()
+        {
+            // Verifica se a pasta "dados" existe
+            if (!Directory.Exists(dataFolder))
             {
-                using (StreamWriter sw = new StreamWriter(path))
+                this.Log($"Erro: Pasta '{dataFolder}/' não existe.\n");
+                return;
+            }
+
+            InitializeCSVs();
+
+            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
+            this.Log("Servidor iniciado. Aguardando conexões...\n");
+
+            Task.Run(() =>
+            {
+            while (true)
+            {
+                try
                 {
-                    sw.WriteLine("WAVY_ID:Dado:Timestamp");
+                    TcpClient client = listener.AcceptTcpClient();
+                    this.Log("Conexão recebida.");
+                    Thread clientThread = new Thread(() => this.ProcessaAgregador(client));
+                    clientThread.Start();
+                }
+                catch (Exception ex)
+                {
+                    this.Log("Erro ao aceitar conexão: " + ex.Message + "\n");
                 }
             }
+            });
         }
-    }
 
-    // Esta função processa os dados recebidos dos AGREGADORes
-    private static void ProcessaAgregador(TcpClient client)
-    {
-        try
+        // Esta função cria os ficheiros CSV dos tipos de dados, se não existir
+        private static void InitializeCSVs()
         {
-            using (client)
+            foreach (string tipo in tiposValidos)
             {
-                NetworkStream stream = client.GetStream();
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
+                string path = Path.Combine(dataFolder, tipo + ".csv");
+                if (!File.Exists(path))
                 {
-                    // Lê a linha de header que indica o início do bloco e quantas linhas seguirão e qual o tipo de dados
-                    string header = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(header))
+                    using (StreamWriter sw = new StreamWriter(path))
                     {
-                        Console.WriteLine("Header recebido: " + header);
-
-                        if (header != null && header.StartsWith("BLOCK"))
-                        {
-                            // Extrai o número de linhas a serem lidas
-                            string[] partes = header.Split(' ');
-                            if (partes.Length == 4 && int.TryParse(partes[1], out int numLinhas) && partes[2] == "TYPE") 
-                            {
-                                // Variável que guarda o tipo de dados recebidos
-                                string tipo = partes[3];
-
-                                // Variável que irá guardar o bloco de mensagens enviadas pelo AGREGADOR
-                                string[] bloco = new string[numLinhas];
-                                for (int i = 0; i < numLinhas; i++)
-                                    bloco[i] = reader.ReadLine();
-                                
-                                // Agora, 'bloco' contém todas as linhas enviadas pelo AGREGADOR.
-                                // Debug : Faz print do bloco de dados recebido
-                                Console.WriteLine("Bloco de dados recebido:");
-                                foreach (string linha in bloco)
-                                    Console.WriteLine(linha);
-
-                                // Processa o bloco conforme necessário
-                                ProcessaBloco(bloco, tipo);
-
-                                // Envia o ACK para confirmar o recebimento do bloco
-                                writer.WriteLine("ACK");
-                                Console.WriteLine("ACK enviado ao AGREGADOR.\n");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Formato de header inválido.\n");
-                        }
+                        sw.WriteLine("WAVY_ID:Dado:Timestamp");
                     }
                 }
             }
         }
-        catch (Exception ex)
+
+        // Esta função processa os dados recebidos dos AGREGADORes
+        private void ProcessaAgregador(TcpClient client)
         {
-            Console.WriteLine("Erro ao processar conexão: " + ex.Message + "\n");
+            try
+            {
+                using (client)
+                {
+                    NetworkStream stream = client.GetStream();
+                    using (StreamReader reader = new StreamReader(stream))
+                    using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
+                    {
+                        // Lê a linha de header que indica o início do bloco e quantas linhas seguirão e qual o tipo de dados
+                        string header = reader.ReadLine();
+                        if (!string.IsNullOrEmpty(header))
+                        {
+                            this.Log("Header recebido: " + header);
+
+                            if (header != null && header.StartsWith("BLOCK"))
+                            {
+                                // Extrai o número de linhas a serem lidas
+                                string[] partes = header.Split(' ');
+                                if (partes.Length == 4 && int.TryParse(partes[1], out int numLinhas) && partes[2] == "TYPE") 
+                                {
+                                    // Variável que guarda o tipo de dados recebidos
+                                    string tipo = partes[3];
+
+                                    // Variável que irá guardar o bloco de mensagens enviadas pelo AGREGADOR
+                                    string[] bloco = new string[numLinhas];
+                                    for (int i = 0; i < numLinhas; i++)
+                                        bloco[i] = reader.ReadLine();
+                                    
+                                    // Agora, 'bloco' contém todas as linhas enviadas pelo AGREGADOR.
+                                    // Debug : Faz print do bloco de dados recebido
+                                    this.Log("Bloco de dados recebido:");
+                                    foreach (string linha in bloco)
+                                        this.Log(linha);
+
+                                    // Processa o bloco conforme necessário
+                                    this.ProcessaBloco(bloco, tipo);
+
+                                    // Envia o ACK para confirmar o recebimento do bloco
+                                    writer.WriteLine("ACK");
+                                    this.Log("ACK enviado ao AGREGADOR.\n");
+                                }
+                            }
+                            else
+                            {
+                                this.Log("Formato de header inválido.\n");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Log("Erro ao processar conexão: " + ex.Message + "\n");
+            }
         }
     }    private static void ProcessaBloco(string[] bloco, string tipo)
     {

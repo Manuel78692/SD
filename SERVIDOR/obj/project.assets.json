@@ -2,6 +2,7 @@
   "version": 3,
   "targets": {
     "net8.0": {
+<<<<<<< HEAD
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -723,15 +724,44 @@
         }
       },
       "RabbitMQ.Client/5.2.0": {
+=======
+      "RabbitMQ.Client/6.4.0": {
+>>>>>>> al78649
         "type": "package",
+        "dependencies": {
+          "System.Memory": "4.5.4",
+          "System.Threading.Channels": "4.7.1"
+        },
         "compile": {
           "lib/netstandard2.0/RabbitMQ.Client.dll": {
-            "related": ".pdb;.xml"
+            "related": ".xml"
           }
         },
         "runtime": {
           "lib/netstandard2.0/RabbitMQ.Client.dll": {
-            "related": ".pdb;.xml"
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Memory/4.5.4": {
+        "type": "package",
+        "compile": {
+          "ref/netcoreapp2.1/_._": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/_._": {}
+        }
+      },
+      "System.Threading.Channels/4.7.1": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp3.0/System.Threading.Channels.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/System.Threading.Channels.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -1149,6 +1179,7 @@
     }
   },
   "libraries": {
+<<<<<<< HEAD
     "Humanizer.Core/2.14.1": {
       "sha512": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "type": "package",
@@ -2663,26 +2694,25 @@
     },
     "RabbitMQ.Client/5.2.0": {
       "sha512": "WY73qFhekwALxI+YTf97WkeWjnQXZFjkSc1oCwZ7Pz/XwOthBotr9ty3DhU2F7GuzU0HHyO9z9uW6AXr+TyhLQ==",
+=======
+    "RabbitMQ.Client/6.4.0": {
+      "sha512": "1znR1gGU+xYVSpO5z8nQolcUKA/yydnxQn7Ug9+RUXxTSLMm/eE58VKGwahPBjELXvDnX0k/kBrAitFLRjx9LA==",
+>>>>>>> al78649
       "type": "package",
-      "path": "rabbitmq.client/5.2.0",
+      "path": "rabbitmq.client/6.4.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "LICENSE",
         "icon.png",
-        "lib/net451/RabbitMQ.Client.dll",
-        "lib/net451/RabbitMQ.Client.pdb",
-        "lib/net451/RabbitMQ.Client.xml",
-        "lib/netstandard1.5/RabbitMQ.Client.dll",
-        "lib/netstandard1.5/RabbitMQ.Client.pdb",
-        "lib/netstandard1.5/RabbitMQ.Client.xml",
+        "lib/net461/RabbitMQ.Client.dll",
+        "lib/net461/RabbitMQ.Client.xml",
         "lib/netstandard2.0/RabbitMQ.Client.dll",
-        "lib/netstandard2.0/RabbitMQ.Client.pdb",
         "lib/netstandard2.0/RabbitMQ.Client.xml",
-        "rabbitmq.client.5.2.0.nupkg.sha512",
+        "rabbitmq.client.6.4.0.nupkg.sha512",
         "rabbitmq.client.nuspec"
       ]
     },
+<<<<<<< HEAD
     "SQLitePCLRaw.bundle_e_sqlite3/2.1.10": {
       "sha512": "UxWuisvZ3uVcVOLJQv7urM/JiQH+v3TmaJc1BLKl5Dxfm/nTzTUrqswCqg/INiYLi61AXnHo1M1JPmPqqLnAdg==",
       "type": "package",
@@ -3042,23 +3072,39 @@
       "sha512": "3oDzvc/zzetpTKWMShs1AADwZjQ/36HnsufHRPcOjyRAAMLDlu2iD33MBI2opxnezcVUtXyqDXXjoFMOU9c7SA==",
       "type": "package",
       "path": "system.memory/4.5.3",
+=======
+    "System.Memory/4.5.4": {
+      "sha512": "1MbJTHS1lZ4bS4FmsJjnuGJOu88ZzTT2rLvrhW7Ygic+pC0NWA+3hgAen0HRdsocuQXCkUTdFn9yHJJhsijDXw==",
+      "type": "package",
+      "path": "system.memory/4.5.4",
+>>>>>>> al78649
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.TXT",
         "THIRD-PARTY-NOTICES.TXT",
+<<<<<<< HEAD
+=======
+        "lib/net461/System.Memory.dll",
+        "lib/net461/System.Memory.xml",
+>>>>>>> al78649
         "lib/netcoreapp2.1/_._",
         "lib/netstandard1.1/System.Memory.dll",
         "lib/netstandard1.1/System.Memory.xml",
         "lib/netstandard2.0/System.Memory.dll",
         "lib/netstandard2.0/System.Memory.xml",
         "ref/netcoreapp2.1/_._",
+<<<<<<< HEAD
         "system.memory.4.5.3.nupkg.sha512",
+=======
+        "system.memory.4.5.4.nupkg.sha512",
+>>>>>>> al78649
         "system.memory.nuspec",
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
     },
+<<<<<<< HEAD
     "System.Reflection.Metadata/7.0.0": {
       "sha512": "MclTG61lsD9sYdpNz9xsKBzjsmsfCtcMZYXz/IUr2zlhaTaABonlr1ESeompTgM+Xk+IwtGYU7/voh3YWB/fWw==",
       "type": "package",
@@ -3091,12 +3137,19 @@
       "sha512": "/iUeP3tq1S0XdNNoMz5C9twLSrM/TH+qElHkXWaPvuNOt+99G75NrV0OS2EqHx5wMN7popYjpc8oTjC1y16DLg==",
       "type": "package",
       "path": "system.runtime.compilerservices.unsafe/6.0.0",
+=======
+    "System.Threading.Channels/4.7.1": {
+      "sha512": "6akRtHK/wab3246t4p5v3HQrtQk8LboOt5T4dtpNgsp3zvDeM4/Gx8V12t0h+c/W9/enUrilk8n6EQqdQorZAA==",
+      "type": "package",
+      "path": "system.threading.channels/4.7.1",
+>>>>>>> al78649
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
         "LICENSE.TXT",
         "THIRD-PARTY-NOTICES.TXT",
+<<<<<<< HEAD
         "buildTransitive/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.targets",
         "buildTransitive/netcoreapp3.1/_._",
         "lib/net461/System.Runtime.CompilerServices.Unsafe.dll",
@@ -3242,14 +3295,32 @@
         "system.threading.channels.7.0.0.nupkg.sha512",
         "system.threading.channels.nuspec",
         "useSharedDesignerContext.txt"
+=======
+        "lib/net461/System.Threading.Channels.dll",
+        "lib/net461/System.Threading.Channels.xml",
+        "lib/netcoreapp3.0/System.Threading.Channels.dll",
+        "lib/netcoreapp3.0/System.Threading.Channels.xml",
+        "lib/netstandard1.3/System.Threading.Channels.dll",
+        "lib/netstandard1.3/System.Threading.Channels.xml",
+        "lib/netstandard2.0/System.Threading.Channels.dll",
+        "lib/netstandard2.0/System.Threading.Channels.xml",
+        "system.threading.channels.4.7.1.nupkg.sha512",
+        "system.threading.channels.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+>>>>>>> al78649
       ]
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+<<<<<<< HEAD
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.6",
       "Microsoft.EntityFrameworkCore.Tools >= 9.0.6",
       "RabbitMQ.Client >= 5.2.0"
+=======
+      "RabbitMQ.Client >= 6.4.0"
+>>>>>>> al78649
     ]
   },
   "packageFolders": {
@@ -3315,7 +3386,7 @@
           },
           "RabbitMQ.Client": {
             "target": "Package",
-            "version": "[5.2.0, )"
+            "version": "[6.4.0, )"
           }
         },
         "imports": [

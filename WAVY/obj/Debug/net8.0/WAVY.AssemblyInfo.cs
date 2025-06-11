@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WAVY")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+576f92ca191af8c177c36c4ce4e988c9b273aa71")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b24cb27049e7fd4fc5531a0735aa1fd9f1e6154f")]
 [assembly: System.Reflection.AssemblyProductAttribute("WAVY")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WAVY")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
