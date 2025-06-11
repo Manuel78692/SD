@@ -1,12 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "UESztKoEOmQ=",
+  "dgSpecHash": "HfjzZP3SMyk=",
   "success": true,
-  "projectFilePath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
+  "projectFilePath": "/Users/pantufeiro/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
   "expectedPackageFiles": [
-    "/Users/manuelpinho/.nuget/packages/rabbitmq.client/6.4.0/rabbitmq.client.6.4.0.nupkg.sha512",
-    "/Users/manuelpinho/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
-    "/Users/manuelpinho/.nuget/packages/system.threading.channels/4.7.1/system.threading.channels.4.7.1.nupkg.sha512"
+    "/Users/pantufeiro/.nuget/packages/rabbitmq.client/6.4.0/rabbitmq.client.6.4.0.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/system.threading.channels/4.7.1/system.threading.channels.4.7.1.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/microsoft.netcore.app.ref/8.0.16/microsoft.netcore.app.ref.8.0.16.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.16/microsoft.aspnetcore.app.ref.8.0.16.nupkg.sha512",
+    "/Users/pantufeiro/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.16/microsoft.netcore.app.host.osx-arm64.8.0.16.nupkg.sha512"
   ],
   "logs": []
 }

@@ -4,10 +4,13 @@ using System.IO;
 using SERVIDOR;
 using WAVY;
 using AGREGADOR;
+using RabbitMQ.Client;
 
 
 class SDMain
 {
+    private static Task? _tarefaEnvioDadosWavy;
+
     public static async Task Main(string[] args)
     {
         // Inicializar WAVYs
@@ -70,7 +73,13 @@ class SDMain
                     WavyMain.ListarWavys();
                     break;
                 case "2":
-                    await WavyMain.MostrarEnvioDados();
+                    if (_tarefaEnvioDadosWavy == null || _tarefaEnvioDadosWavy.IsCompleted)
+                    {
+                        // Inicia a tarefa em background
+                        _tarefaEnvioDadosWavy = Task.Run(() => WavyMain.MostrarEnvioDados());
+                    }
+                    // Aguarda ou mostra progresso
+                    await _tarefaEnvioDadosWavy;
                     break;
                 case "3":
                     WavyMain.AlterarEstadoWavy();
@@ -92,7 +101,7 @@ class SDMain
         string[] agregadores = { "AGREGADOR01", "AGREGADOR02" };
         foreach (var ag in agregadores)
         {
-            string filePath = $"AGREGADOR/dados/wavys_{ag}.csv";
+            string filePath = $"SD/AGREGADOR/dados/wavys_{ag}.csv";
             if (File.Exists(filePath))
             {
                 Console.WriteLine($"\n--- {ag} ---");

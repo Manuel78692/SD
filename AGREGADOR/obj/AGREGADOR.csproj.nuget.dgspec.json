@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {}
+    "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {}
   },
   "projects": {
-    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
+    "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
+        "projectUniqueName": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
         "projectName": "AGREGADOR",
-        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
-        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/obj/",
+        "projectPath": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
+        "packagesPath": "/Users/pantufeiro/.nuget/packages/",
+        "outputPath": "/Users/pantufeiro/Documents/GitHub/SD/AGREGADOR/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
+          "/Users/pantufeiro/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -46,7 +46,7 @@
           "dependencies": {
             "RabbitMQ.Client": {
               "target": "Package",
-              "version": "[5.2.0, )"
+              "version": "[6.4.0, )"
             }
           },
           "imports": [
@@ -60,12 +60,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.16, 8.0.16]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[8.0.16, 8.0.16]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.16, 8.0.16]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
