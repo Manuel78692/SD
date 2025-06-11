@@ -1,5 +1,6 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "08qjnboSVLY=",
   "success": true,
   "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\SERVIDOR.csproj",
@@ -55,6 +56,15 @@
     "C:\\Users\\ruipe\\.nuget\\packages\\system.text.encodings.web\\9.0.6\\system.text.encodings.web.9.0.6.nupkg.sha512",
     "C:\\Users\\ruipe\\.nuget\\packages\\system.text.json\\9.0.6\\system.text.json.9.0.6.nupkg.sha512",
     "C:\\Users\\ruipe\\.nuget\\packages\\system.threading.channels\\7.0.0\\system.threading.channels.7.0.0.nupkg.sha512"
+=======
+  "dgSpecHash": "pv0c9x22DOc=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SERVIDOR\\SERVIDOR.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\6.4.0\\rabbitmq.client.6.4.0.nupkg.sha512",
+    "C:\\Users\\ruipe\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\ruipe\\.nuget\\packages\\system.threading.channels\\4.7.1\\system.threading.channels.4.7.1.nupkg.sha512"
+>>>>>>> al78649
   ],
   "logs": []
 }

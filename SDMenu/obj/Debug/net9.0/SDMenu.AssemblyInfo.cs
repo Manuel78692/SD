@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SDMenu")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5197ebef4cdfc9fe9241ddd86efc7aee238d768a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5cac968a3cd0b6c9b5be4ccd2cadd901a540cb03")]
 [assembly: System.Reflection.AssemblyProductAttribute("SDMenu")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SDMenu")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
