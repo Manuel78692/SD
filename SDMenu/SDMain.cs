@@ -10,6 +10,7 @@ using RabbitMQ.Client;
 class SDMain
 {
     private static Task? _tarefaEnvioDadosWavy;
+    private static Task? _tarefaAgregador;
 
     public static async Task Main(string[] args)
     {
@@ -17,10 +18,10 @@ class SDMain
         WavyMain.Init();
 
         // Inicializar Agregadores
-        _ = Task.Run(() => AgregadorMain.Main(new string[0]));
+        //_ = Task.Run(() => AgregadorMain.Main(new string[0]));
 
         // Inicializar servidor de análise
-        _ = Task.Run(() => AnaliseRPCServer.Start());
+       // _ = Task.Run(() => AnaliseRPCServer.Start());
 
         while (true)
         {
@@ -96,28 +97,58 @@ class SDMain
 
     private static Task MenuAgregador()
     {
-        Console.Clear();
-        Console.WriteLine("=== Informações Pós-Processadas pelo PREPROCESSAMENTORRPC ===");
-        string[] agregadores = { "AGREGADOR01", "AGREGADOR02" };
-        foreach (var ag in agregadores)
+        while (true)
         {
-            string filePath = $"SD/AGREGADOR/dados/wavys_{ag}.csv";
-            if (File.Exists(filePath))
+            Console.Clear();
+            Console.WriteLine("=== Menu Agregador ===");
+            Console.WriteLine("1. Mostrar de dados recebidos");
+            Console.WriteLine("2. Mostrar de dados processados");
+            Console.WriteLine("3. Voltar");
+            Console.Write("Escolha uma opção: ");
+            var opcao = Console.ReadLine();
+
+            switch (opcao)
             {
-                Console.WriteLine($"\n--- {ag} ---");
-                var linhas = File.ReadAllLines(filePath);
-                foreach (var linha in linhas)
-                    Console.WriteLine(linha);
-            }
-            else
-            {
-                Console.WriteLine($"\n--- {ag} ---");
-                Console.WriteLine("Nenhum dado encontrado.");
+                case "1":
+                    if (_tarefaAgregador == null || _tarefaAgregador.IsCompleted)
+                    {
+                        // Inicia a tarefa em background
+                        _tarefaAgregador = Task.Run(() => AgregadorMain.Main(new string[0]));
+                    }
+                    Console.WriteLine("Agregadores estão a correr em background.");
+                    Console.WriteLine("Pressione qualquer tecla para voltar...");
+                    Console.ReadKey();
+                    break;
+                case "2":
+                    Console.WriteLine("=== Informações Pós-Processadas pelo PREPROCESSAMENTORRPC ===");
+                    string[] agregadores = { "AGREGADOR01", "AGREGADOR02" };
+                    foreach (var ag in agregadores)
+                    {
+                        string filePath = $"dados/wavys_{ag}.csv"; // Corrige o caminho se necessário
+                        if (File.Exists(filePath))
+                        {
+                            Console.WriteLine($"\n--- {ag} ---");
+                            var linhas = File.ReadAllLines(filePath);
+                            foreach (var linha in linhas)
+                                Console.WriteLine(linha);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"\n--- {ag} ---");
+                            Console.WriteLine("Nenhum dado encontrado.");
+                        }
+                    }
+                    Console.WriteLine("\nPressione qualquer tecla para voltar...");
+                    Console.ReadKey();
+                    break;
+                case "3":
+                    return Task.CompletedTask;
+                default:
+                    Console.WriteLine("Opção inválida. Pressione qualquer tecla para continuar...");
+                    Console.ReadKey();
+                    break;
             }
         }
-        Console.WriteLine("\nPressione qualquer tecla para voltar...");
-        Console.ReadKey();
-        return Task.CompletedTask;
     }
 
     private static async Task MenuServidor()
