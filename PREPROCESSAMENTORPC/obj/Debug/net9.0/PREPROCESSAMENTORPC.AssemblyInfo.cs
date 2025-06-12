@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PREPROCESSAMENTORPC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a9971822eefdede126d5149330808ab716766d97")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dfa3f1b9774f92bceffcdf305237c4ca4503fde9")]
 [assembly: System.Reflection.AssemblyProductAttribute("PREPROCESSAMENTORPC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PREPROCESSAMENTORPC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

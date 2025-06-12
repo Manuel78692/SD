@@ -6,23 +6,22 @@ using WAVY;
 using AGREGADOR;
 using RabbitMQ.Client;
 
-
 class SDMain
 {
     private static Task? _tarefaEnvioDadosWavy;
     private static Task? _tarefaAgregador;
+    private static Task? _tarefaServidor;
+    // static List<string> logsServidor = new List<string>();
+    // static Servidor servidor = new Servidor();
 
     public static async Task Main(string[] args)
     {
-        // Inicializar WAVYs
+        // Inicializar Mains
         WavyMain.Init();
-
-        // Inicializar Agregadores
-        //_ = Task.Run(() => AgregadorMain.Main(new string[0]));
-
-        // Inicializar servidor de análise
-        _ = Task.Run(() => AnaliseRPCServer.Start());
-
+        AgregadorMain.Init();
+        ServidorMain.Init();
+        // PreProcessamentoRPCServerMain.Init();
+        
         while (true)
         {
             Console.Clear();
@@ -39,7 +38,7 @@ class SDMain
                     await MenuWavy();
                     break;
                 case "2":
-                    await  MenuAgregador();
+                    await MenuAgregador();
                     break;
                 case "3":
                     await MenuServidor();
@@ -63,7 +62,7 @@ class SDMain
             Console.Clear();
             Console.WriteLine("=== Menu WAVY ===");
             Console.WriteLine("1. Listar WAVYs");
-            Console.WriteLine("2. Mostrar envio de dados");
+            Console.WriteLine("2. Mostrar Logs");
             Console.WriteLine("3. Alterar Estado de uma WAVY");
             Console.WriteLine("4. Voltar");
             Console.Write("Escolha uma opção: ");
@@ -71,7 +70,6 @@ class SDMain
             switch (opcao)
             {
                 case "1":
-                    WavyMain.Init(); 
                     WavyMain.ListarWavys();
                     break;
                 case "2":
@@ -96,13 +94,13 @@ class SDMain
         }
     }
 
-    private static Task MenuAgregador()
+    private static async Task MenuAgregador()
     {
         while (true)
         {
             Console.Clear();
             Console.WriteLine("=== Menu Agregador ===");
-            Console.WriteLine("1. Mostrar de dados recebidos");
+            Console.WriteLine("1. Mostrar Logs");
             Console.WriteLine("2. Mostrar de dados processados");
             Console.WriteLine("3. Voltar");
             Console.Write("Escolha uma opção: ");
@@ -114,18 +112,17 @@ class SDMain
                     if (_tarefaAgregador == null || _tarefaAgregador.IsCompleted)
                     {
                         // Inicia a tarefa em background
-                        _tarefaAgregador = Task.Run(() => AgregadorMain.Main(new string[0]));
+                        _tarefaAgregador = Task.Run(() => AgregadorMain.MostrarLogsAgregadores());
                     }
-                    Console.WriteLine("Agregadores estão a correr em background.");
-                    Console.WriteLine("Pressione qualquer tecla para voltar...");
-                    Console.ReadKey();
+                    // Aguarda ou mostra progresso
+                    await _tarefaAgregador;
                     break;
                 case "2":
                     Console.WriteLine("=== Informações Pós-Processadas pelo PREPROCESSAMENTORRPC ===");
                     string[] agregadores = { "AGREGADOR01", "AGREGADOR02" };
                     foreach (var ag in agregadores)
                     {
-                        string filePath = $"dados/wavys_{ag}.csv"; // Corrige o caminho se necessário
+                        string filePath = $"dados/wavys_{ag}.csv"; 
                         if (File.Exists(filePath))
                         {
                             Console.WriteLine($"\n--- {ag} ---");
@@ -143,7 +140,7 @@ class SDMain
                     Console.ReadKey();
                     break;
                 case "3":
-                    return Task.CompletedTask;
+                    return;
                 default:
                     Console.WriteLine("Opção inválida. Pressione qualquer tecla para continuar...");
                     Console.ReadKey();
@@ -160,7 +157,8 @@ class SDMain
             Console.WriteLine("=== Menu Servidor ===");
             Console.WriteLine("1. Mostrar dados");
             Console.WriteLine("2. Analisar dados");
-            Console.WriteLine("3. Voltar");
+            Console.WriteLine("3. Mostrar Logs");
+            Console.WriteLine("4. Voltar");
             Console.Write("Escolha uma opção: ");
             var opcao = Console.ReadLine();
             switch (opcao)
@@ -243,6 +241,15 @@ class SDMain
                     Console.ReadKey();
                     break;
                 case "3":
+                    if (_tarefaServidor == null || _tarefaServidor.IsCompleted)
+                    {
+                        // Inicia a tarefa em background
+                        _tarefaServidor = Task.Run(() => ServidorMain.MostrarLogsServidor());
+                    }
+                    // Aguarda ou mostra progresso
+                    await _tarefaServidor;
+                    break;
+                case "4":
                     return;
                 default:
                     Console.WriteLine("Opção inválida. Pressione qualquer tecla para continuar...");

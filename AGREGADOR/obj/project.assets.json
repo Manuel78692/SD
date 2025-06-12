@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {
+    "net9.0": {
       "RabbitMQ.Client/6.4.0": {
         "type": "package",
         "dependencies": {
@@ -39,6 +39,19 @@
           "lib/netcoreapp3.0/System.Threading.Channels.dll": {
             "related": ".xml"
           }
+        }
+      },
+      "PREPROCESSAMENTORPC/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "RabbitMQ.Client": "6.4.0"
+        },
+        "compile": {
+          "bin/placeholder/PREPROCESSAMENTORPC.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/PREPROCESSAMENTORPC.dll": {}
         }
       }
     }
@@ -106,38 +119,56 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "PREPROCESSAMENTORPC/1.0.0": {
+      "type": "project",
+      "path": "../PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj",
+      "msbuildProject": "../PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj"
     }
   },
   "projectFileDependencyGroups": {
-    "net8.0": [
+    "net9.0": [
+      "PREPROCESSAMENTORPC >= 1.0.0",
       "RabbitMQ.Client >= 6.4.0"
     ]
   },
   "packageFolders": {
-    "/Users/manuelpinho/.nuget/packages/": {}
+    "C:\\Users\\ruipe\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
+      "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj",
       "projectName": "AGREGADOR",
-      "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
-      "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-      "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/obj/",
+      "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj",
+      "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\ruipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net8.0"
+        "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
-          "projectReferences": {}
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "projectReferences": {
+            "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj": {
+              "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -150,11 +181,11 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
-      "net8.0": {
-        "targetAlias": "net8.0",
+      "net9.0": {
+        "targetAlias": "net9.0",
         "dependencies": {
           "RabbitMQ.Client": {
             "target": "Package",
@@ -177,7 +208,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

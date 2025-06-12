@@ -37,6 +37,7 @@ namespace AGREGADOR
 
                 try
                 {
+                    Console.WriteLine(" [>] Pedido RPC recebido para pré-processamento.");
                     var message = Encoding.UTF8.GetString(ea.Body.ToArray());
                     var request = JsonSerializer.Deserialize<PreProcessamentoRequest>(message);
                     var resultado = ProcessaBloco(request?.Bloco ?? Array.Empty<string>(), request?.Status ?? "");

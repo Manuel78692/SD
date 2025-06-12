@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {}
+    "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\SERVIDOR\\SERVIDOR.csproj": {}
   },
   "projects": {
-    "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj": {
+    "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\SERVIDOR\\SERVIDOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
+        "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\SERVIDOR\\SERVIDOR.csproj",
         "projectName": "SERVIDOR",
-        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/SERVIDOR.csproj",
-        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
-        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/SERVIDOR/obj/",
+        "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\SERVIDOR\\SERVIDOR.csproj",
+        "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\SERVIDOR\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\ruipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,15 +45,25 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
             "RabbitMQ.Client": {
               "target": "Package",
-              "version": "[6.4.0, )"
+              "version": "[5.2.0, )"
             }
           },
           "imports": [
@@ -65,7 +82,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
