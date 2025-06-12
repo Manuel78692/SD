@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "iszrOlYbAHw=",
+  "dgSpecHash": "VMUFcvtxK6k=",
   "success": true,
   "projectFilePath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\5.2.0\\rabbitmq.client.5.2.0.nupkg.sha512"
+    "C:\\Users\\ruipe\\.nuget\\packages\\rabbitmq.client\\6.4.0\\rabbitmq.client.6.4.0.nupkg.sha512",
+    "C:\\Users\\ruipe\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\ruipe\\.nuget\\packages\\system.threading.channels\\4.7.1\\system.threading.channels.4.7.1.nupkg.sha512"
   ],
   "logs": []
 }

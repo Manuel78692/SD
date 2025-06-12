@@ -8,8 +8,10 @@ using System.Globalization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using System.Text.Json;
+using System.Xml.Serialization;
 
-class Agregador
+public class Agregador
 {
     // Id to AGREGADOR
     private string id { get; set; }
@@ -30,15 +32,15 @@ class Agregador
     private string? agregadorFilePath;
 
     // Mutex para garantir a exclusão mútua ao escrever no arquivo CSV
-    private readonly Mutex wavysFileMutex = new Mutex();   
+    private readonly Mutex wavysFileMutex = new Mutex();
 
     // RabbitMQ
     private IConnection? _rabbitConnection;
-    private IModel? _rabbitChannel; 
+    private IModel? _rabbitChannel;
     private CancellationTokenSource _agregadorCts = new CancellationTokenSource();
     private bool _isFailing = false;
 
-    public event Action<string>? OnLogEntry;    
+    public event Action<string>? OnLogEntry;
     public Agregador(string _id, int _port, string _servidorIp, int _servidorPort)
     {
         id = _id;
@@ -53,7 +55,7 @@ class Agregador
     }
     private void Log(string message)
     {
-        
+
         OnLogEntry?.Invoke(message);
     }
 
@@ -243,7 +245,7 @@ class Agregador
                             {
                                 Log($"[{id} - {processingId}] Erro: Fim inesperado da mensagem, esperava {numLinhas} linhas no bloco mas so recebeu {i}.");
                                 // Decide how to handle: nack and don't requeue?
-                                _rabbitChannel?.BasicNack(ea.DeliveryTag, false, false); 
+                                _rabbitChannel?.BasicNack(ea.DeliveryTag, false, false);
                                 return;
                             }
                         }
@@ -254,7 +256,7 @@ class Agregador
                         // foreach (string linha in bloco)
                         //     Log($"[{id} - {processingId}]   {linha}");
 
-                        ProcessaBloco(bloco, statusWavy); // Your existing core logic
+                        await ProcessaBlocoAsync(bloco, statusWavy); // Your existing core logic
 
                         _rabbitChannel?.BasicAck(ea.DeliveryTag, false); // Acknowledge successful processing
                         Log($"[{id} - {processingId}] Mensagem processada e ACK enviada. DeliveryTag: {ea.DeliveryTag}");
@@ -282,84 +284,96 @@ class Agregador
     }
 
     // Esta função processa os dados recebidos das WAVYs
-    private void ProcessaBloco(string[] bloco, string status)
+    private async Task ProcessaBlocoAsync(string[] bloco, string status)
     {
-        /*
-            Cada linha do WAVY vem no formato seguinte: "WAVY_ID:[data_type=data]:date_of_reading"
+        var factory = new ConnectionFactory() { HostName = "localhost" };
+        using var connection = factory.CreateConnection();
+        using var channel = connection.CreateModel();
 
-            O que o AGREGADOR faz é separar os dados e encaminhá-los para o Servidor
-            Depois também deverá fazer algum tipo de pré-processamento dos dados, se necessário
+        var queueName = "rpc_preprocessamento";
+        var correlationId = Guid.NewGuid().ToString();
+        var replyQueue = channel.QueueDeclare().QueueName;
 
-            O suposto é o AGREGADOR verificar a partir de um ficheiro de configuração em .csv 
-            o que deverá fazer para cada tipo de dado em cada WAVY
+        var props = channel.CreateBasicProperties();
+        props.CorrelationId = correlationId;
+        props.ReplyTo = replyQueue;
 
-            Cada linha desse ficheiro segue o seguinte formato: 
-            "WAVY_ID:pré_processamento:volume_dados_enviar:servidor_associado"
-            Como neste momento apenas existe um servidor, não há pré-processamento e o volume_dados_enviar é redundante, 
-            não lê o ficheiro
+        var request = new { Bloco = bloco, Status = status };
+        var messageBytes = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
 
-            Antes de enviar para o servidor, convém guardar o estado e o 'last sync' do WAVY conectado
-            No ficheiro "wavys_{id}.csv", cada linha corresponde a "WAVY_ID:status:[data_types]:last_sync"
-            Neste momento, os estados são: Ativo, Desativo
-        */
-
-        // Dicionário para armazenar listas para cada tipo de dado
-        Dictionary<string, List<string>> dadosSensor = new Dictionary<string, List<string>>();
-
-        // Data the último sync do WAVY (DateTime.Now)
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture);
-        string wavyId = string.Empty;
-
-        foreach (string linha in bloco)
+        var tcs = new TaskCompletionSource<string?>();
+        var consumer = new EventingBasicConsumer(channel);
+        consumer.Received += (model, ea) =>
         {
-            // Extrai o ID da WAVY e os dados
-            string[] partes = linha.Split('[', ']');
-            string dataLeitura = partes[2].Trim(':'); // Data de leitura dos sensores
-            wavyId = partes[0].TrimEnd(':'); // ID da WAVY
-            string[] dados = partes[1].TrimEnd(']').Split(':'); // Dados da WAVY
-
-            foreach (string dado in dados)
+            if (ea.BasicProperties.CorrelationId == correlationId)
             {
-                // Aqui, a linha é do tipo "data_type=data"
-                string[] tipoDado = dado.Split('=');
-                string dataType = tipoDado[0].Trim(); // Tipo de dado
-                string data = tipoDado[1].Trim(); // Valor do dado
-
-                // Se a lista para este tipo de dado não existir, cria-a
-                if (!dadosSensor.ContainsKey(dataType))
-                    dadosSensor[dataType] = new List<string>();
-
-                // Adiciona o dado à lista apropriada
-                // Cada linha será do tipo "WAVY_ID:data:date_of_reading"
-                dadosSensor[dataType].Add(wavyId + ":" + data + ":" + dataLeitura);
+                var response = System.Text.Encoding.UTF8.GetString(ea.Body.ToArray());
+                tcs.TrySetResult(response);
             }
-        }
+        };
+        channel.BasicConsume(consumer: consumer, queue: replyQueue, autoAck: true);
 
-        // Debug: Faz print dos dados separados por tipo
-        // foreach (var entry in dadosSensor)
-        // {
-        //     Console.WriteLine($"Tipo de dado: {entry.Key}");
-        //     foreach (var data in entry.Value)
-        //         Console.WriteLine($"  Dado: {data}");
-        // }
+        channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: props, body: messageBytes);
 
-        // Variável guarda todos os tipos de variável enviados pela WAVY separados por ":"
-        string tipos = string.Join(":", dadosSensor.Keys);
-
-        // Variável indica a linha que o AGREGADOR deve guardar no ficheiro
-        string linhaCSV = $"{wavyId}:{status}:[{tipos}]:{timestamp}";
-
-        string filePath = Path.Combine(dataFolder, agregadorFilePath);
-
+        string? response = null;
         try
         {
-            wavysFileMutex.WaitOne();
-            // Guarda a linha no ficheiro CSV
-            using (StreamWriter writer = new StreamWriter(filePath, append: true))
+            response = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        catch (TimeoutException)
+        {
+            Log("Timeout à espera da resposta do serviço de pré-processamento.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(response))
+        {
+            Log("Resposta vazia do serviço de pré-processamento.");
+            return;
+        }
+
+        PreProcessamentoResultado? resultado = null;
+        try
+        {
+            resultado = JsonSerializer.Deserialize<PreProcessamentoResultado>(response);
+        }
+        catch (Exception ex)
+        {
+            Log($"Erro ao desserializar resposta do pré-processamento: {ex.Message}");
+            return;
+        }
+
+        if (resultado == null)
+        {
+            Log("Resultado do pré-processamento é nulo.");
+            return;
+        }
+
+        // // ADICIONA AQUI O DEBUG:
+        // Console.WriteLine("DEBUG - Quantidade de tipos em DadosSensor: " + resultado.DadosSensor.Count);
+        // foreach (var tipo in resultado.DadosSensor.Keys)
+        // {
+        //     Console.WriteLine($"DEBUG - Tipo: {tipo}, Leituras: {resultado.DadosSensor[tipo].Count}");
+        // }
+
+        // Console.WriteLine("DEBUG - Resposta do RPC:");
+        // Console.WriteLine(response);
+
+        string linhaCSV = $"{resultado.WavyId}:{resultado.Status}:[{resultado.Tipos}]:{resultado.Timestamp}";
+        string filePath = Path.Combine(dataFolder, agregadorFilePath ?? $"wavys_{id}.csv");
+
+        wavysFileMutex.WaitOne();
+        try
+        {
+            using StreamWriter writer = new StreamWriter(filePath, append: true);
+            foreach (var tipo in resultado.DadosSensor.Keys)
             {
-                writer.WriteLine(linhaCSV);
+                foreach (var leitura in resultado.DadosSensor[tipo])
+                {
+                    writer.WriteLine(leitura); // Exemplo: WAVY01:123:2024-06-11-12-00-00
+                }
             }
-            Log($"Estado da WAVY atualizado no arquivo '{filePath}'.");
+            Log($"Dados das WAVYs adicionados ao arquivo '{filePath}'.");
         }
         catch (Exception ex)
         {
@@ -370,7 +384,7 @@ class Agregador
             wavysFileMutex.ReleaseMutex();
         }
 
-        EncaminhaParaServidor(dadosSensor);
+        EncaminhaParaServidor(resultado.DadosSensor);
     }
 
     // Esta função encaminha cada bloco de dados, separados por tipo de dados, para o servidor
@@ -416,11 +430,20 @@ class Agregador
                     }
                 }
             }
-            
+
         }
         catch (Exception ex)
         {
             Log("Erro ao encaminhar dados para o Servidor: " + ex.Message + "\n");
         }
+    }
+    private class PreProcessamentoResultado
+    {
+        public Dictionary<string, List<string>> DadosSensor { get; set; } = new();
+        public string WavyId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string Timestamp { get; set; } = string.Empty;
+        public string Tipos { get; set; } = string.Empty;
+        public string[] Bloco { get; set; } = Array.Empty<string>();
     }
 }

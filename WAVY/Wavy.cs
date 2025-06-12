@@ -39,7 +39,7 @@ public class Wavy
     private List<string> bufferDados;
 
     // Tamanho máximo do buffer
-    private const int MaxBufferSize = 5; 
+    private const int MaxBufferSize = 5;
 
     // Para mandar os logs ao WavyMain
     // Invés Console.Log, usa-se OnDataBlockReady?.Invoke
@@ -56,7 +56,7 @@ public class Wavy
         preferredAgregatorId = _preferredAgregatorId; // Changed
         tipoDados = _tipoDados;
         bufferDados = new List<string>();
-         // InitializeRabbitMq(); // Consider initializing connection here or on first send
+        // InitializeRabbitMq(); // Consider initializing connection here or on first send
     }
 
     private void EnsureRabbitMqConnection()
@@ -158,7 +158,7 @@ public class Wavy
             await Task.Delay(500, token);
         }
     }
-    
+
     // Esta função chama a função EnviarBloco e limpa o bufferDados
     private void GerirLista()
     {
@@ -247,8 +247,8 @@ public class Wavy
     }
 
 
-    
-     // ###################################################################################################################### //
+
+    // ###################################################################################################################### //
     // --- Nestas funções, os dados são recebidos individualmente, ou seja, cada linha do bufferDados vai ser de cada tipo de dado individualmente
     /*
         Exemplo de um bufferDados completo, se usadas estas funções:
