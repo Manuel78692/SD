@@ -2,14 +2,28 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/SD/FileContentIndex
-/WAVY/obj
-/AGREGADOR/obj
-/SERVIDOR/obj
-/PREPROCESSAMENTORPC/obj
-/SDMenu/obj
-/WAVY/bin
-/AGREGADOR/bin
-/SERVIDOR/bin
-/PREPROCESSAMENTORPC/bin
-/SDMenu/bin
+# Visual Studio files and folders
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Project-specific patterns
+/WAVY/obj/
+/WAVY/bin/
+/AGREGADOR/obj/
+/AGREGADOR/bin/
+/SERVIDOR/obj/
+/SERVIDOR/bin/
+/PREPROCESSAMENTORPC/obj/
+/PREPROCESSAMENTORPC/bin/
+/SDMenu/obj/
+/SDMenu/bin/
