@@ -9,7 +9,7 @@ class Servidor
 {
     private string id;  
     // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
-    private static readonly int port = 5000;
+    private static readonly int port = 5010;
 
     // Pasta onde irá guardar os dados
     private static readonly string dataFolder = "dados";

@@ -11,7 +11,7 @@ namespace AGREGADOR
         private static string servidorIp = "127.0.0.1";
 
         // Porta para enviar os dados para o SERVIDOR
-        private static int servidorPort = 5000;
+        private static int servidorPort = 5010;
 
         private static List<Agregador> agregadores = new List<Agregador>();
         private static List<Task> agregadorTasks = new List<Task>();

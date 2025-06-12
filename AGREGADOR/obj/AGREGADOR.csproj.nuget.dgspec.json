@@ -1,40 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj": {}
+    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
         "projectName": "AGREGADOR",
-        "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\AGREGADOR.csproj",
-        "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\AGREGADOR\\obj\\",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/AGREGADOR.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/AGREGADOR/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\ruipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj": {
-                "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj"
+              "/Users/manuelpinho/Documents/GitHub/SD/PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj": {
+                "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj"
               }
             }
           }
@@ -49,7 +42,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -76,33 +69,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj": {
+    "/Users/manuelpinho/Documents/GitHub/SD/PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj",
+        "projectUniqueName": "/Users/manuelpinho/Documents/GitHub/SD/PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj",
         "projectName": "PREPROCESSAMENTORPC",
-        "projectPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\PREPROCESSAMENTORPC.csproj",
-        "packagesPath": "C:\\Users\\ruipe\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ruipe\\source\\repos\\SD\\SD\\PREPROCESSAMENTORPC\\obj\\",
+        "projectPath": "/Users/manuelpinho/Documents/GitHub/SD/PREPROCESSAMENTORPC/PREPROCESSAMENTORPC.csproj",
+        "packagesPath": "/Users/manuelpinho/.nuget/packages/",
+        "outputPath": "/Users/manuelpinho/Documents/GitHub/SD/PREPROCESSAMENTORPC/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\ruipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/manuelpinho/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -121,7 +107,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -148,7 +134,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
