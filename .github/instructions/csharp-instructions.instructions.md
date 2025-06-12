@@ -71,3 +71,5 @@ applyTo: '**'
   - Provide XML comments for controllers and models to enhance Swagger documentation.
 
   Follow the official Microsoft documentation and ASP.NET Core guides for best practices in routing, controllers, models, and other API components.
+
+  Don't hesitate on asking questions if you need more context.
