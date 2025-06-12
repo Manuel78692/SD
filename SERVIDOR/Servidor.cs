@@ -9,7 +9,7 @@ class Servidor
 {
     private string id;  
     // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
-    private static readonly int port = 5000;
+    private static readonly int port = 5010;
 
     // Pasta onde irá guardar os dados
     private static readonly string dataFolder = "dados";
@@ -21,14 +21,18 @@ class Servidor
     private static readonly Mutex wavysFileMutex = new Mutex();
     public event Action<string>? OnLogEntry;
 
-    public Servidor() { id = "servidor"; }
+    public Servidor()
+    {
+        id = "servidor";
+        sensorDataService = new SensorDataService(Log);
+    }
 
     public string GetId() { return id; }
 
     public void Log(string msg) { OnLogEntry?.Invoke(msg); }
 
     // Database service for sensor data operations
-    private static readonly SensorDataService sensorDataService = new SensorDataService();
+    private readonly SensorDataService sensorDataService;
 
     public void Run()
     {

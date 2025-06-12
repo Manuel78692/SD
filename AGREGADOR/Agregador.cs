@@ -59,7 +59,7 @@ public class Agregador
         OnLogEntry?.Invoke(message);
     }
 
-    public void Run()
+    public async Task Run()
     {
         if (!Directory.Exists(dataFolder))
         {
@@ -120,9 +120,7 @@ public class Agregador
             {
                 await HandleReceivedMessage(ea, $"FallbackQueue ({RabbitMqConstants.AgregadorGeneralFallbackQueue})");
             };
-            _rabbitChannel.BasicConsume(queue: RabbitMqConstants.AgregadorGeneralFallbackQueue, autoAck: false, consumer: fallbackConsumer);
-
-            Log($"Agregador {id} aguardando mensagens nas queues '{preferredQueueName}' e '{RabbitMqConstants.AgregadorGeneralFallbackQueue}'. Pressione [enter] para sair.");
+            _rabbitChannel.BasicConsume(queue: RabbitMqConstants.AgregadorGeneralFallbackQueue, autoAck: false, consumer: fallbackConsumer);            Log($"Agregador {id} aguardando mensagens nas queues '{preferredQueueName}' e '{RabbitMqConstants.AgregadorGeneralFallbackQueue}'. Pressione [enter] para sair.");
             // Keep alive for listening, but check for cancellation token
             while (!_agregadorCts.Token.IsCancellationRequested)
             {
@@ -130,7 +128,7 @@ public class Agregador
                 // For simulation via AgregadorMain, a delay is better.
                 try
                 {
-                    Task.Delay(1000, _agregadorCts.Token); // Check every second
+                    await Task.Delay(1000, _agregadorCts.Token); // Check every second
                 }
                 catch (TaskCanceledException)
                 {

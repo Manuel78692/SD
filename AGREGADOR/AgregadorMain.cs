@@ -11,30 +11,24 @@ namespace AGREGADOR
         private static string servidorIp = "127.0.0.1";
 
         // Porta para enviar os dados para o SERVIDOR
-        private static int servidorPort = 5000;
+        private static int servidorPort = 5010;
 
         private static List<Agregador> agregadores = new List<Agregador>();
         private static List<Task> agregadorTasks = new List<Task>();
-        private static ConcurrentDictionary<string, ConcurrentQueue<string>> _agregadorLogs = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
-
-        public static void Init()
+        private static ConcurrentDictionary<string, ConcurrentQueue<string>> _agregadorLogs = new ConcurrentDictionary<string, ConcurrentQueue<string>>();        public static void Init()
         {
-            Console.WriteLine("Iniciando Agregadores...");
+            Console.WriteLine("AgregadorMain.Init() - Iniciando Agregadores...");
             Agregador agregador01 = new Agregador("AGREGADOR01", 5001, servidorIp, servidorPort);
             Agregador agregador02 = new Agregador("AGREGADOR02", 5002, servidorIp, servidorPort);
             // Agregador agregador03 = new Agregador("AGREGADOR03", servidorIp, servidorPort);
-
 
             agregadores.Add(agregador01);
             agregadores.Add(agregador02);
             // agregadores.Add(agregador03);
 
-            agregadorTasks.Add(Task.Run(() => agregador01.Run()));
-            agregadorTasks.Add(Task.Run(() => agregador02.Run()));
-            // agregadorTasks.Add(Task.Run(() => agregador03.Run()));
+            Console.WriteLine($"AgregadorMain.Init() - {agregadores.Count} agregadores criados. Iniciando setup de logs e tasks...");
 
-            // This will now run the menu concurrently with the agregadores
-            // await Task.WhenAll(agregadorTasks); // We won't wait for all to finish here anymore
+            // Setup logging and start tasks for each agregador
             foreach (var agregador in agregadores)
             {
                 string currentAgregadorId = agregador.GetId(); // Assuming GetId() exists
@@ -45,11 +39,12 @@ namespace AGREGADOR
                     if (_agregadorLogs.TryGetValue(currentAgregadorId, out var queue))
                     {
                         queue.Enqueue($"{DateTime.Now:HH:mm:ss} → {logMessage}");
-                    }
-                };
-                agregadorTasks.Add(Task.Run(() => agregador.Run()));
+                    }                };
+                Console.WriteLine($"AgregadorMain.Init() - Iniciando task para {currentAgregadorId}...");
+                agregadorTasks.Add(Task.Run(async () => await agregador.Run()));
             }
-            Console.WriteLine("Agregadores iniciados e logs sendo coletados."); // Main feedback
+            
+            Console.WriteLine($"AgregadorMain.Init() - Agregadores iniciados e logs sendo coletados. {agregadorTasks.Count} tasks iniciadas."); // Main feedback
         }
 
         private static async Task Main()

@@ -7,8 +7,7 @@ using AGREGADOR;
 using RabbitMQ.Client;
 
 class SDMain
-{
-    private static Task? _tarefaEnvioDadosWavy;
+{    private static Task? _tarefaEnvioDadosWavy;
     private static Task? _tarefaAgregador;
     private static Task? _tarefaServidor;
     // static List<string> logsServidor = new List<string>();
@@ -16,11 +15,25 @@ class SDMain
 
     public static async Task Main(string[] args)
     {
-        // Inicializar Mains
-        WavyMain.Init();
+        Console.WriteLine("Iniciando sistema SD...");
+        
+        // Inicializar Mains in correct order - AGREGADORs first to set up queues
+        Console.WriteLine("Inicializando Agregadores...");
         AgregadorMain.Init();
+        
+        Console.WriteLine("Inicializando Servidor...");
         ServidorMain.Init();
         // PreProcessamentoRPCServerMain.Init();
+        
+        // Give AGREGADORs time to set up RabbitMQ queues before WAVYs start sending
+        Console.WriteLine("Aguardando setup completo dos Agregadores...");
+        await Task.Delay(3000); // Increased delay to ensure proper RabbitMQ setup
+        
+        Console.WriteLine("Inicializando WAVYs...");
+        WavyMain.Init();
+        
+        Console.WriteLine("Sistema iniciado com sucesso! Aguardando estabilização...");
+        await Task.Delay(2000); // Allow time for all components to stabilize
         
         while (true)
         {

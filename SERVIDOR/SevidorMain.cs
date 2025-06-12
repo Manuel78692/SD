@@ -32,7 +32,7 @@ namespace SERVIDOR
         public static async Task MostrarLogsServidor()
         {
             Console.Clear();
-            Console.WriteLine("=== Logs dos AGREGADORes (Pressione qualquer tecla para voltar) ===");
+            Console.WriteLine("=== Logs do SERVIDOR (Pressione qualquer tecla para voltar) ===");
 
             CancellationTokenSource cts = new CancellationTokenSource();
             Console.CancelKeyPress += (s, e) => { cts.Cancel(); e.Cancel = true; }; // Allow Ctrl+C to exit this view

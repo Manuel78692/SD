@@ -42,50 +42,67 @@ public class Wavy
     private const int MaxBufferSize = 5;
 
     // Para mandar os logs ao WavyMain
-    // Invés Console.Log, usa-se OnDataBlockReady?.Invoke
+    // Invés Console.Log, usa-se Log
     public event Action<string>? OnDataBlockReady;
 
     // RabbitMQ connection objects - could be shared or per send
     private IConnection? _rabbitConnection; // New
-    private IModel? _rabbitChannel; // New
-
-    // Construtor da WAVY
+    private IModel? _rabbitChannel; // New    // Construtor da WAVY
     public Wavy(string _id, string _preferredAgregatorId, List<TipoDado> _tipoDados)
     {
         id = _id;
         preferredAgregatorId = _preferredAgregatorId; // Changed
         tipoDados = _tipoDados;
         bufferDados = new List<string>();
+        Console.WriteLine($"Wavy {_id} criada com tipos de dados: {string.Join(", ", _tipoDados)} -> Agregador preferido: {_preferredAgregatorId}");
         // InitializeRabbitMq(); // Consider initializing connection here or on first send
     }
 
-    private void EnsureRabbitMqConnection()
+    public void Log(string msg) { OnDataBlockReady?.Invoke(msg); }    private void EnsureRabbitMqConnection()
     {
+        Log($"[{id}] EnsureRabbitMqConnection() - Verificando conexão...");
         if (_rabbitChannel == null || _rabbitChannel.IsClosed)
         {
+            Log($"[{id}] Canal RabbitMQ não disponível ou fechado. Criando nova conexão...");
             try
             {
                 _rabbitConnection?.Close(); // Close previous if any
-                var factory = new ConnectionFactory() { HostName = RabbitMqConstants.HostName, DispatchConsumersAsync = true };
+                Log($"[{id}] Criando ConnectionFactory para {RabbitMqConstants.HostName}...");
+                var factory = new ConnectionFactory() 
+                { 
+                    HostName = RabbitMqConstants.HostName, 
+                    DispatchConsumersAsync = true,
+                    RequestedConnectionTimeout = 5000, // 5 seconds in milliseconds
+                    RequestedHeartbeat = 10 // 10 seconds
+                };
+                
+                Log($"[{id}] Estabelecendo conexão...");
                 _rabbitConnection = factory.CreateConnection();
+                
+                Log($"[{id}] Criando canal...");
                 _rabbitChannel = _rabbitConnection.CreateModel();
 
+                Log($"[{id}] Declarando exchange '{RabbitMqConstants.WavyTopicExchange}'...");
                 // Declare the topic exchange - idempotent
                 _rabbitChannel.ExchangeDeclare(exchange: RabbitMqConstants.WavyTopicExchange, type: ExchangeType.Topic, durable: true);
-                OnDataBlockReady?.Invoke($"RabbitMQ connection and topic exchange '{RabbitMqConstants.WavyTopicExchange}' ensured for {id}.");
+                Log($"[{id}] ✓ RabbitMQ connection and topic exchange '{RabbitMqConstants.WavyTopicExchange}' ensured successfully.");
             }
             catch (Exception ex)
             {
-                OnDataBlockReady?.Invoke($"Error initializing RabbitMQ for {id}: {ex.Message}");
+                Log($"[{id}] ✗ ERRO ao inicializar RabbitMQ: {ex.Message}");
+                Log($"[{id}] Stack trace: {ex.StackTrace}");
                 _rabbitChannel = null; // Prevent further use if setup failed
             }
         }
-    }
-
-    //Esta função recebe dados dos sensores.
+        else
+        {
+            Log($"[{id}] Conexão RabbitMQ já está ativa.");
+        }
+    }//Esta função recebe dados dos sensores.
     //Ou seja, utiliza os simuladores de sensores (na pasta geradores) para simular leitura de dados em tempo real.
     public async Task ReceberDados(CancellationToken token = default)
     {
+        Log($"{id} - ReceberDados() iniciado com {tipoDados.Count} tipos de dados.");
         Random random = new Random();
         // Cria uma lista de enumeradores, uma por tipo de sensor
         var enumeradores = new List<(TipoDado Tipo, IAsyncEnumerator<string> Enumerador)>();
@@ -99,22 +116,28 @@ public class Wavy
                 // Guarda a função no enumerador
                 IAsyncEnumerator<string> enumerador = simulatorFunc(this).GetAsyncEnumerator();
                 enumeradores.Add((tipo, enumerador));
+                Log($"{id} - Simulador para {tipo} configurado.");
             }
             else
             {
-                OnDataBlockReady?.Invoke($"Nenhum simulador encontrado para o tipo: {tipo}");
+                Log($"Nenhum simulador encontrado para o tipo: {tipo}");
             }
-        }
-
+        }        Log($"{id} - Iniciando loop de simulação com {enumeradores.Count} enumeradores...");
+        int iterationCount = 0;
         // Inicia o loop da simulação dos sensores
         while (!token.IsCancellationRequested)
         {
+            iterationCount++;
+            Log($"{id} - Loop iteração #{iterationCount}, Estado: {estadoWavy}");
+            
             if (estadoWavy != Estado.Ativo)
             {
-                OnDataBlockReady?.Invoke($"{id} não ativada");
+                Log($"{id} não ativada - aguardando...");
                 await Task.Delay(500, token);
                 continue;
             }
+            
+            Log($"{id} - Processando dados dos sensores...");
             // Lista que contém todos os valores do enumeradores
             var valoresSensor = new List<string>();
 
@@ -123,14 +146,16 @@ public class Wavy
 
             foreach (var (Tipo, Enumerador) in enumeradores)
             {
+                Log($"{id} - Obtendo dados do sensor {Tipo}...");
                 bool hasNext = await Enumerador.MoveNextAsync();
                 if (!hasNext)
                 {
-                    OnDataBlockReady?.Invoke($"O simulador para {Tipo} terminou.");
+                    Log($"O simulador para {Tipo} terminou.");
                     return;
                 }
 
                 string dadosRecebidos = Enumerador.Current;
+                Log($"{id} - Dados recebidos de {Tipo}: {dadosRecebidos}");
                 string[] partes = dadosRecebidos.Split(':');
 
                 // Verifica se existe ou não data na qual o sensor foi lido. Se não existir, fica "N/A"
@@ -140,39 +165,42 @@ public class Wavy
                     last_sync = "N/A";
 
                 valoresSensor.Add(partes[0]);
-            }
-
-            // Combina todos os dados recebidos dos possíveis diferentes tipos de sensores e combina-os numa linha da lista
+            }            // Combina todos os dados recebidos dos possíveis diferentes tipos de sensores e combina-os numa linha da lista
             string compositeOutput = "[" + string.Join(":", valoresSensor) + "]" + ":" + last_sync;
-
-            // Se a lista ultrapassar o tamanho máximo, chama a função GerirLista
-            if (bufferDados.Count >= MaxBufferSize)
-                GerirLista();
+            Log($"{id} - Dados compostos gerados: {compositeOutput}");
 
             // Adiciona a lista ao bufferDados
             bufferDados.Add(compositeOutput);
+            Log($"{id} - Dados adicionados ao buffer. Tamanho atual: {bufferDados.Count}/{MaxBufferSize}");
+
+            // Se a lista ultrapassar o tamanho máximo, chama a função GerirLista
+            if (bufferDados.Count >= MaxBufferSize)
+            {
+                Log($"{id} - Buffer cheio ({bufferDados.Count}/{MaxBufferSize}), enviando dados...");
+                GerirLista();
+            }
 
             // Gera um atraso aleatório, para simular a leitura dos sensores
             // Em .Next, o primeiro parâmetro é inclusivo e o segundo é exclusivo.
             // int delay = random.Next(100, 201);
             await Task.Delay(500, token);
         }
-    }
-
-    // Esta função chama a função EnviarBloco e limpa o bufferDados
+    }    // Esta função chama a função EnviarBloco e limpa o bufferDados
     private void GerirLista()
     {
+        Log($"{id} - GerirLista chamada. Buffer tem {bufferDados.Count} itens.");
         // Verifica se o buffer atingiu o tamanho máximo
         if (bufferDados.Count >= MaxBufferSize)
         {
+            Log($"{id} - Buffer cheio! Enviando bloco...");
             // Envia o bloco de dados para o AGREGADOR
             EnviarBloco();
 
             // Debug : Faz print da lista
-            OnDataBlockReady?.Invoke(id + " List :");
+            Log(id + " List :");
             foreach (string element in bufferDados)
             {
-                OnDataBlockReady?.Invoke("| List - " + element);
+                Log("| List - " + element);
             }
 
             // Limpa o buffer após enviar
@@ -180,19 +208,21 @@ public class Wavy
             {
                 bufferDados.Clear();
             }
+            Log($"{id} - Buffer limpo após envio.");
         }
-    }
-
-    // Esta função envia o bloco de dados (bufferDados) para o AGREGADOR associado
+    }    // Esta função envia o bloco de dados (bufferDados) para o AGREGADOR associado
     private void EnviarBloco()
     {
+        Log($"[{id}] EnviarBloco() iniciado. Tentando estabelecer conexão RabbitMQ...");
         EnsureRabbitMqConnection();
         if (_rabbitChannel == null)
         {
-            OnDataBlockReady?.Invoke($"Cannot send block for {id}: RabbitMQ channel not available.");
+            Log($"[{id}] ERRO: Cannot send block - RabbitMQ channel not available.");
             // Optionally, re-buffer or handle this error
             return;
         }
+
+        Log($"[{id}] Conexão RabbitMQ estabelecida. Preparando mensagem...");
 
         try
         {
@@ -213,8 +243,12 @@ public class Wavy
             // Define the routing key for the preferred agregador
             string routingKey = $"wavy.data.prefer.{preferredAgregatorId}";
 
+            Log($"[{id}] Mensagem preparada. Tamanho: {bodyBytes.Length} bytes. Routing key: {routingKey}");
+
             var properties = _rabbitChannel.CreateBasicProperties();
             properties.Persistent = true; // Make messages persistent
+
+            Log($"[{id}] Enviando mensagem para exchange '{RabbitMqConstants.WavyTopicExchange}'...");
 
             _rabbitChannel.BasicPublish(
                 exchange: RabbitMqConstants.WavyTopicExchange,
@@ -222,13 +256,21 @@ public class Wavy
                 basicProperties: properties,
                 body: bodyBytes);
 
-            OnDataBlockReady?.Invoke($"[{id}] Sent block with header '{header}' to exchange '{RabbitMqConstants.WavyTopicExchange}' with RK '{routingKey}'.");
+            Log($"[{id}] ✓ SUCESSO! Bloco enviado com header '{header}' para exchange '{RabbitMqConstants.WavyTopicExchange}' com RK '{routingKey}'.");
         }
         catch (Exception ex)
         {
-            OnDataBlockReady?.Invoke($"[{id}] Error sending block via RabbitMQ: {ex.Message}");
+            Log($"[{id}] ✗ ERRO ao enviar bloco via RabbitMQ: {ex.Message}");
+            Log($"[{id}] Stack trace: {ex.StackTrace}");
             // Consider closing/re-establishing channel on certain errors
-            _rabbitChannel?.Close(); // May force re-init on next send
+            try
+            {
+                _rabbitChannel?.Close(); // May force re-init on next send
+            }
+            catch (Exception closeEx)
+            {
+                Log($"[{id}] Erro ao fechar canal: {closeEx.Message}");
+            }
             _rabbitChannel = null;
         }
     }
@@ -242,7 +284,7 @@ public class Wavy
         }
         catch (Exception ex)
         {
-            OnDataBlockReady?.Invoke($"Error closing RabbitMQ for {id}: {ex.Message}");
+            Log($"Error closing RabbitMQ for {id}: {ex.Message}");
         }
     }
 
@@ -279,7 +321,7 @@ public class Wavy
             }
             else
             {
-                OnDataBlockReady?.Invoke($"Nenhum simulador encontrado para o tipo: {tipo}");
+                Log($"Nenhum simulador encontrado para o tipo: {tipo}");
             }
         }
 
@@ -297,7 +339,7 @@ public class Wavy
 
                 bufferDados.Add(output);
             }
-            // OnDataBlockReady?.Invoke($"[{tipo}] Data added to list: {output}");
+            // Log($"[{tipo}] Data added to list: {output}");
         }
     }
     // ###################################################################################################################### //

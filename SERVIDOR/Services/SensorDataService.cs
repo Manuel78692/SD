@@ -3,20 +3,21 @@ using SERVIDOR.Data;
 using SERVIDOR.Models;
 
 namespace SERVIDOR.Services
-{
-    /// <summary>
+{    /// <summary>
     /// Service for handling sensor data operations with the database
     /// Replaces CSV file operations with database storage
     /// </summary>
     public class SensorDataService
     {
         private readonly SensorDataContext _context;
+        private readonly Action<string> _logger;
 
-        public SensorDataService()
+        public SensorDataService(Action<string>? logger = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder<SensorDataContext>();
             optionsBuilder.UseSqlite(DatabaseConfig.GetConnectionString());
             _context = new SensorDataContext(optionsBuilder.Options);
+            _logger = logger ?? Console.WriteLine; // Fallback to Console.WriteLine if no logger provided
         }
 
         /// <summary>
@@ -29,22 +30,21 @@ namespace SERVIDOR.Services
             try
             {
                 var readings = ParseDataBlock(dataBlock, sensorType);
-                  if (readings.Any())
+                if (readings.Any())
                 {
-                    Console.WriteLine($"Parsed {readings.Count} {sensorType} readings, attempting database save...");
+                    _logger($"Parsed {readings.Count} {sensorType} readings, attempting database save...");
                     await _context.AddRangeAsync(readings);
                     await _context.SaveChangesAsync();
-                    
-                    Console.WriteLine($"Successfully saved {readings.Count} {sensorType} readings to database.");
+
+                    _logger($"Successfully saved {readings.Count} {sensorType} readings to database.");
                 }
                 else
                 {
-                    Console.WriteLine($"No valid {sensorType} readings found in data block.");
+                    _logger($"No valid {sensorType} readings found in data block.");
                 }
-            }
-            catch (Exception ex)
+            }            catch (Exception ex)
             {
-                Console.WriteLine($"Error saving {sensorType} data to database: {ex.Message}");
+                _logger($"Error saving {sensorType} data to database: {ex.Message}");
                 throw; // Re-throw so caller can handle fallback if needed
             }
         }        /// <summary>

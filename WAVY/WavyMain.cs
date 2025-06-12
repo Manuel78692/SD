@@ -12,17 +12,19 @@ namespace WAVY
 
         // Lista dos WAVYs
         private static Wavy[] wavys;
-
+        
         // Para guardar os logs de cada WAVY
         private static ConcurrentDictionary<string, ConcurrentQueue<string>> _sendLogs = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         
+        // Para manter referência às tasks dos WAVYs
+        private static List<Task> _wavyTasks = new List<Task>();
+        
         // Para parar o loop de forma segura
-        private static CancellationTokenSource _cts = new CancellationTokenSource();
-
-        // Esta função simula os diferentes WAVYs
+        private static CancellationTokenSource _cts = new CancellationTokenSource();        // Esta função simula os diferentes WAVYs
         // Cria instâncias da classe e corre todas simultaneamente
         public static void Init()
         {
+            Console.WriteLine("WavyMain.Init() - Iniciando criação das WAVYs...");
             wavys = new Wavy[]
             {
                 new Wavy("WAVY01", "AGREGADOR01", new List<TipoDado> { TipoDado.GPS, TipoDado.Temperatura }),
@@ -30,6 +32,8 @@ namespace WAVY
                 new Wavy("WAVY03", "AGREGADOR01", new List<TipoDado> { TipoDado.PH, TipoDado.Humidade }),
                 new Wavy("WAVY04", "AGREGADOR02", new List<TipoDado> { TipoDado.GPS }),
             };
+
+            Console.WriteLine($"WavyMain.Init() - {wavys.Length} WAVYs criadas. Iniciando setup de logs e tasks...");
 
             // Aqui, cada Wavy é inicializado e o evento OnDataBlockReady é associado a uma fila de logs
             foreach(var w in wavys)
@@ -42,11 +46,11 @@ namespace WAVY
                 {
                     // Adiciona o log à fila correspondente ao Wavy
                     _sendLogs[w.id].Enqueue($"{DateTime.Now:HH:mm:ss} → {block}");
-                };
-
-                // Inicia a receção de dados
-                Task.Run(() => w.ReceberDados(_cts.Token));
+                };                // Inicia a receção de dados
+                Console.WriteLine($"WavyMain.Init() - Iniciando task para {w.id}...");
+                _wavyTasks.Add(Task.Run(() => w.ReceberDados(_cts.Token)));
             }
+            Console.WriteLine($"WavyMain.Init() - Todas as {_wavyTasks.Count} tasks das WAVYs foram iniciadas.");
         }
 
         // Esta função gere a interface na consola
