@@ -10,14 +10,24 @@ namespace SERVIDOR.Services
     public class SensorDataService
     {
         private readonly SensorDataContext _context;
-        private readonly Action<string> _logger;
-
-        public SensorDataService(Action<string>? logger = null)
+        private readonly Action<string> _logger;        public SensorDataService(Action<string>? logger = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder<SensorDataContext>();
             optionsBuilder.UseSqlite(DatabaseConfig.GetConnectionString());
             _context = new SensorDataContext(optionsBuilder.Options);
             _logger = logger ?? Console.WriteLine; // Fallback to Console.WriteLine if no logger provided
+            
+            // Ensure database and tables are created
+            try
+            {
+                _context.Database.EnsureCreated();
+                _logger("Database initialized successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger($"Error initializing database: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>

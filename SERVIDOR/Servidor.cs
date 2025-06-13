@@ -7,12 +7,11 @@ using SERVIDOR.Services;
 
 class Servidor
 {
-    private string id;  
-    // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
+    private string id;    // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
     private static readonly int port = 5010;
 
-    // Pasta onde irá guardar os dados
-    private static readonly string dataFolder = "dados";
+    // Pasta onde irá guardar os dados - relative to SERVIDOR folder
+    private static readonly string dataFolder = Path.Combine("..", "SERVIDOR", "dados");
 
     // Tipos de dados válidos
     private static readonly string[] tiposValidos = {
@@ -32,15 +31,21 @@ class Servidor
     public void Log(string msg) { OnLogEntry?.Invoke(msg); }
 
     // Database service for sensor data operations
-    private readonly SensorDataService sensorDataService;
-
-    public void Run()
+    private readonly SensorDataService sensorDataService;    public void Run()
     {
-        // Verifica se a pasta "dados" existe
+        // Verifica se a pasta "dados" existe, se não existe, cria
         if (!Directory.Exists(dataFolder))
         {
-            Log($"Erro: Pasta '{dataFolder}/' não existe.\n");
-            return;
+            try
+            {
+                Directory.CreateDirectory(dataFolder);
+                Log($"Pasta de dados '{dataFolder}' criada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                Log($"ERRO CRÍTICO: Não foi possível criar a pasta '{dataFolder}': {ex.Message}. Desligando.");
+                return;
+            }
         }
 
         InitializeCSVs();

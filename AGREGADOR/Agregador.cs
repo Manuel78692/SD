@@ -23,10 +23,8 @@ public class Agregador
     private readonly string servidorIp;
 
     // Porta do SERVIDOR
-    private readonly int servidorPort;
-
-    // Pasta onde irá guardar os dados
-    private readonly string dataFolder = "dados";
+    private readonly int servidorPort;    // Pasta onde irá guardar os dados - relative to AGREGADOR folder
+    private readonly string dataFolder = Path.Combine("..", "AGREGADOR", "dados");
 
     // Ficheiro CSV onde irá guardar os dados
     private string? agregadorFilePath;
@@ -57,16 +55,21 @@ public class Agregador
     {
 
         OnLogEntry?.Invoke(message);
-    }
-
-    public async Task Run()
+    }    public async Task Run()
     {
         if (!Directory.Exists(dataFolder))
         {
-            // This is a critical startup error, might be okay to leave as Console.WriteLine or throw
-            Console.WriteLine($"Agregador {id}: ERRO CRÍTICO: Pasta '{dataFolder}/' não existe. Desligando.\n");
-            Log($"ERRO CRÍTICO: Pasta '{dataFolder}/' não existe. Desligando."); // Also log it
-            return;
+            try
+            {
+                Directory.CreateDirectory(dataFolder);
+                Log($"Pasta de dados '{dataFolder}' criada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Agregador {id}: ERRO CRÍTICO: Não foi possível criar a pasta '{dataFolder}': {ex.Message}. Desligando.\n");
+                Log($"ERRO CRÍTICO: Não foi possível criar a pasta '{dataFolder}': {ex.Message}. Desligando.");
+                return;
+            }
         }
         InitializeCSV(); // Initializes agregador's own status CSV
 

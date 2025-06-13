@@ -1,16 +1,17 @@
+using System.IO;
+
 namespace SERVIDOR.Data
 {
     /// <summary>
     /// Configuration settings for the database
     /// </summary>
     public static class DatabaseConfig
-    {
-        /// <summary>
+    {        /// <summary>
         /// Gets the SQLite connection string for the sensor data database
         /// </summary>
         public static string GetConnectionString()
         {
-            var databasePath = Path.Combine("dados", "sensor_data.db");
+            var databasePath = Path.Combine("..", "SERVIDOR", "dados", "sensor_data.db");
             
             // Ensure the dados directory exists
             var dadosDirectory = Path.GetDirectoryName(databasePath);
