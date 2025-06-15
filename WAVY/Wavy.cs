@@ -58,7 +58,8 @@ public class Wavy
         // InitializeRabbitMq(); // Consider initializing connection here or on first send
     }
 
-    public void Log(string msg) { OnDataBlockReady?.Invoke(msg); }    private void EnsureRabbitMqConnection()
+    public void Log(string msg) { OnDataBlockReady?.Invoke(msg); }
+    private void EnsureRabbitMqConnection()
     {
         Log($"[{id}] EnsureRabbitMqConnection() - Verificando conexão...");
         if (_rabbitChannel == null || _rabbitChannel.IsClosed)
@@ -68,17 +69,17 @@ public class Wavy
             {
                 _rabbitConnection?.Close(); // Close previous if any
                 Log($"[{id}] Criando ConnectionFactory para {RabbitMqConstants.HostName}...");
-                var factory = new ConnectionFactory() 
-                { 
-                    HostName = RabbitMqConstants.HostName, 
+                var factory = new ConnectionFactory()
+                {
+                    HostName = RabbitMqConstants.HostName,
                     DispatchConsumersAsync = true,
                     RequestedConnectionTimeout = 5000, // 5 seconds in milliseconds
                     RequestedHeartbeat = 10 // 10 seconds
                 };
-                
+
                 Log($"[{id}] Estabelecendo conexão...");
                 _rabbitConnection = factory.CreateConnection();
-                
+
                 Log($"[{id}] Criando canal...");
                 _rabbitChannel = _rabbitConnection.CreateModel();
 

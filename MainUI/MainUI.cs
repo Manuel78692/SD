@@ -235,7 +235,7 @@ class MainUI
                     ShowServerData();
                     break;
                 case "2":
-                    AnalyzeData();
+                    await AnalyzeDataAsync(); // Changed to await async version
                     break;
                 case "3":
                     await ExecuteSafelyAsync(() => ServidorMain.MostrarLogsServidor(), "mostrar logs do servidor");
@@ -354,7 +354,7 @@ class MainUI
         }
     }
     
-    private static void AnalyzeData()
+    private static async Task AnalyzeDataAsync() 
     {
         try
         {
@@ -364,72 +364,96 @@ class MainUI
             Console.Write("Digite o tipo de sensor (gps/gyro/humidade/ph/temperatura): ");
             string? sensorType = Console.ReadLine()?.Trim().ToLowerInvariant();
             
-            if (string.IsNullOrWhiteSpace(sensorType))
+            if (string.IsNullOrWhiteSpace(sensorType) || !IsValidSensorType(sensorType))
             {
-                ShowError("Tipo de sensor é obrigatório!");
+                ShowError("Tipo de sensor inválido ou não fornecido!");
+                PauseForUser();
+                return;
+            }
+
+            Console.Write("Digite o tipo de análise (basica/tendencia/anomalia/completa): ");
+            string? analysisType = Console.ReadLine()?.Trim().ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(analysisType) || !IsValidAnalysisType(analysisType))
+            {
+                ShowError("Tipo de análise inválido ou não fornecido! Use: basica, tendencia, anomalia, completa.");
                 PauseForUser();
                 return;
             }
             
             Console.Write("Digite a data/hora inicial (yyyy-MM-dd-HH-mm-ss): ");
-            string? startTime = Console.ReadLine()?.Trim();
+            string? startTimeStr = Console.ReadLine()?.Trim();
             
             Console.Write("Digite a data/hora final (yyyy-MM-dd-HH-mm-ss): ");
-            string? endTime = Console.ReadLine()?.Trim();
+            string? endTimeStr = Console.ReadLine()?.Trim();
             
-            if (string.IsNullOrWhiteSpace(startTime) || string.IsNullOrWhiteSpace(endTime))
+            if (string.IsNullOrWhiteSpace(startTimeStr) || string.IsNullOrWhiteSpace(endTimeStr))
             {
                 ShowError("Datas de início e fim são obrigatórias!");
                 PauseForUser();
                 return;
             }
+
+            ShowInfo($"Solicitando análise {analysisType} para {sensorType} de {startTimeStr} a {endTimeStr}...");
+
+            var analysisResult = await ServidorMain.RealizarAnaliseAsync(sensorType, analysisType, startTimeStr, endTimeStr);
             
-            // Delegate to existing analysis logic
-            string filePath = $"SERVIDOR/dados/{sensorType}.csv";
-            var data = new List<string>();
+            Console.WriteLine("\n┌─── Resultado da Análise Detalhada ───────────────┐");
             
-            if (File.Exists(filePath))
+            if (analysisResult == null || !analysisResult.Sucesso)
             {
-                var lines = File.ReadAllLines(filePath);
-                foreach (var line in lines)
-                {
-                    if (line.StartsWith("WAVY_ID")) continue;
-                    
-                    var parts = line.Split(':');
-                    if (parts.Length >= 3)
-                    {
-                        string timestamp = parts[2];
-                        if (string.Compare(timestamp, startTime) >= 0 && 
-                            string.Compare(timestamp, endTime) <= 0)
-                        {
-                            data.Add(parts[1]);
-                        }
-                    }
-                }
-            }
-            
-            Console.WriteLine("\n┌─── Resultado da Análise ─────────────────────┐");
-            
-            if (data.Count == 0)
-            {
-                Console.WriteLine("│ Nenhum dado encontrado no intervalo          │");
+                ShowError($"│ Falha ao obter resultados: {analysisResult?.Mensagem ?? "Erro desconhecido."}");
             }
             else
             {
-                var result = AnaliseRPCClient.Analisar(sensorType, startTime, endTime, data);
-                if (result != null)
+                // Display Basic Statistics
+                if (analysisResult.EstatisticasBasicas != null)
                 {
-                    Console.WriteLine($"│ Média: {result.Media,-32} │");
-                    Console.WriteLine($"│ Máximo: {result.Max,-30} │");
-                    Console.WriteLine($"│ Mínimo: {result.Min,-31} │");
+                    Console.WriteLine("│ --- Estatísticas Básicas ---                   │");
+                    Console.WriteLine($"│ Média: {analysisResult.EstatisticasBasicas.Media,-38} │");
+                    Console.WriteLine($"│ Mediana: {analysisResult.EstatisticasBasicas.Mediana,-36} │");
+                    Console.WriteLine($"│ Máximo: {analysisResult.EstatisticasBasicas.Max,-37} │");
+                    Console.WriteLine($"│ Mínimo: {analysisResult.EstatisticasBasicas.Min,-37} │");
+                    Console.WriteLine($"│ Desvio Padrão: {analysisResult.EstatisticasBasicas.DesvioPadrao,-28} │");
+                    Console.WriteLine($"│ Contagem: {analysisResult.EstatisticasBasicas.TotalLeituras,-34} │");
                 }
                 else
                 {
-                    Console.WriteLine("│ Erro ao obter análise do servidor            │");
+                    Console.WriteLine("│ Estatísticas básicas não disponíveis.          │");
+                }
+
+                // Display Trend Analysis
+                if (analysisResult.Tendencia != null)
+                {
+                    Console.WriteLine("│ --- Análise de Tendência ---                   │");
+                    Console.WriteLine($"│ Direção: {analysisResult.Tendencia.Direcao,-35} │");
+                    Console.WriteLine($"│ Inclinação: {analysisResult.Tendencia.Inclinacao,-31} │");
+                    Console.WriteLine($"│ Correlação Temporal: {analysisResult.Tendencia.CorrelacaoTemporal,-20} │");
+                }
+                else
+                {
+                    Console.WriteLine("│ Análise de tendência não disponível.           │");
+                }
+
+                // Display Anomaly Detection
+                if (analysisResult.Anomalias != null && analysisResult.Anomalias.LeiturasSuspeitas.Count > 0)
+                {
+                    Console.WriteLine("│ --- Detecção de Anomalias ---                  │");
+                    Console.WriteLine($"│ Total de Anomalias: {analysisResult.Anomalias.TotalAnomalias,-25} │");
+                    Console.WriteLine($"│ Limite Inferior: {analysisResult.Anomalias.LimiteInferior,-28} │");
+                    Console.WriteLine($"│ Limite Superior: {analysisResult.Anomalias.LimiteSuperior,-28} │");
+                    foreach (var anomaly in analysisResult.Anomalias.LeiturasSuspeitas)
+                    {
+                        Console.WriteLine($"│ Anomalia: {anomaly.Timestamp:yyyy-MM-dd HH:mm:ss} - V: {anomaly.Value} (WAVY: {anomaly.WavyId}) │");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("│ Nenhuma anomalia detectada ou não disponível.  │");
                 }
             }
             
-            Console.WriteLine("└───────────────────────────────────────────────┘");
+            Console.WriteLine("└───────────────────────────────────────────────────┘");
             PauseForUser();
         }
         catch (Exception ex)
@@ -437,6 +461,18 @@ class MainUI
             ShowError($"Erro na análise de dados: {ex.Message}");
             PauseForUser();
         }
+    }
+
+    private static bool IsValidSensorType(string sensorType)
+    {
+        string[] validTypes = { "gps", "gyro", "humidade", "ph", "temperatura" };
+        return validTypes.Contains(sensorType.ToLowerInvariant());
+    }
+
+    private static bool IsValidAnalysisType(string analysisType)
+    {
+        string[] validTypes = { "basica", "tendencia", "anomalia", "completa" };
+        return validTypes.Contains(analysisType.ToLowerInvariant());
     }
     
     #endregion

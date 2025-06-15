@@ -4,6 +4,8 @@
     <ProjectReference Include="..\WAVY\WAVY.csproj" />
     <ProjectReference Include="..\AGREGADOR\AGREGADOR.csproj" />
     <ProjectReference Include="..\SERVIDOR\SERVIDOR.csproj" />
+    <ProjectReference Include="..\PREPROCESSAMENTORPC\PREPROCESSAMENTORPC.csproj" />
+    <ProjectReference Include="..\ANALISERPC\ANALISERPC.csproj" />
   </ItemGroup>
 
 <ItemGroup>

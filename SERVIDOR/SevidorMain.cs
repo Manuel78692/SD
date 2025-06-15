@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Threading.Tasks;
+using System.Globalization; 
+using ANALISERPC.Models; // Ensure this using directive is present
 
 namespace SERVIDOR 
 {
@@ -24,7 +26,30 @@ namespace SERVIDOR
             };
             servidor.Run();
 
-            Console.WriteLine("Agregadores iniciados e logs sendo coletados."); // Main feedback
+            Console.WriteLine("Servidor iniciado e logs sendo coletados.");
+        }
+
+        public static async Task<AnaliseResponse?> RealizarAnaliseAsync(string sensorType, string analysisType, string startTimeStr, string endTimeStr)
+        {
+            if (servidor == null)
+            {
+                Console.WriteLine("Erro: Instância do servidor não inicializada.");
+                return null;
+            }
+
+            DateTime startTime;
+            DateTime endTime;
+            string format = "yyyy-MM-dd-HH-mm-ss";
+
+            if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out startTime) || 
+                !DateTime.TryParseExact(endTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out endTime))
+            {
+                Console.WriteLine($"Erro em ServidorMain: Formato de data inválido. Use {format}. Recebido: Início='{startTimeStr}', Fim='{endTimeStr}'");
+                return new AnaliseResponse { Sucesso = false, Mensagem = $"Formato de data inválido. Use {format}." };
+            }
+
+            // Pass analysisType and string.Empty for idWavy.
+            return await servidor.RealizarAnaliseAsync(sensorType, analysisType, string.Empty, startTime, endTime);
         }
 
 

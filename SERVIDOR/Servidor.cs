@@ -3,11 +3,15 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 using SERVIDOR.Services;
+using SERVIDOR.Data;
+using ANALISERPC.Models;
 
 class Servidor
 {
-    private string id;    // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
+    private string id;
+    // Porta do SERVIDOR para escutar as conexões dos AGREGADORes
     private static readonly int port = 5010;
 
     // Pasta onde irá guardar os dados - relative to SERVIDOR folder
@@ -19,7 +23,8 @@ class Servidor
     };    // Mutex para garantir a exclusão mútua ao escrever no arquivo CSV
     private static readonly Mutex wavysFileMutex = new Mutex();
     public event Action<string>? OnLogEntry;
-
+    // Database service for sensor data operations
+    private readonly SensorDataService sensorDataService;
     public Servidor()
     {
         id = "servidor";
@@ -28,10 +33,7 @@ class Servidor
 
     public string GetId() { return id; }
 
-    public void Log(string msg) { OnLogEntry?.Invoke(msg); }
-
-    // Database service for sensor data operations
-    private readonly SensorDataService sensorDataService;    public void Run()
+    public void Log(string msg) { OnLogEntry?.Invoke(msg); }public void Run()
     {
         // Verifica se a pasta "dados" existe, se não existe, cria
         if (!Directory.Exists(dataFolder))
@@ -198,5 +200,63 @@ class Servidor
         {
             Log($"Tipo de dado '{tipo}' inválido. Bloco descartado.");
         }
+    }
+    /// <summary>
+    /// Performs sensor data analysis by querying database and coordinating with ANALISERPC
+    /// </summary>
+    public async Task<AnaliseResponse?> RealizarAnaliseAsync(string tipoSensor, string tipoAnalise, string idWavy, DateTime dataInicio, DateTime dataFim)
+    {
+        try
+        {
+            Log($"Iniciando análise: Sensor '{tipoSensor}', Tipo Análise '{tipoAnalise}', WAVY '{idWavy ?? "Todos"}', Período: {dataInicio:yyyy-MM-dd HH:mm:ss} a {dataFim:yyyy-MM-dd HH:mm:ss}");
+
+            // Create analysis service with proper context
+            var optionsBuilder = new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<SensorDataContext>();
+            var dbPath = Path.Combine(dataFolder, "sensor_data.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+
+            using var context = new SensorDataContext(optionsBuilder.Options);
+            var analysisService = new AnalysisManagerService(context);
+
+            // Pass idWavy to AnalysisManagerService if it needs to filter by a specific WAVY
+            // For now, AnalysisManagerService.RealizarAnaliseAsync doesn't use idWavy, but it could be added there if needed.
+            var resultado = await analysisService.RealizarAnaliseAsync(tipoSensor, tipoAnalise, dataInicio, dataFim);
+
+            if (resultado?.Sucesso == true)
+            {
+                Log($"Análise concluída com sucesso: {resultado.Mensagem}");
+            }
+            else
+            {
+                Log($"Falha na análise: {resultado?.Mensagem ?? "Erro desconhecido"}");
+            }
+
+            return resultado;
+        }
+        catch (Exception ex)
+        {
+            Log($"Erro durante análise: {ex.Message}");
+            return new AnaliseResponse
+            {
+                Sucesso = false,
+                Mensagem = $"Erro interno do servidor: {ex.Message}"
+            };
+        }
+    }
+
+    /// <summary>
+    /// Lists available sensor types for analysis
+    /// </summary>
+    public string[] ObterTiposSensoresDisponiveis()
+    {
+        return new[] { "temperature", "ph", "humidity", "gps", "gyro" };
+    }
+
+    /// <summary>
+    /// Lists available analysis types
+    /// </summary>
+    public string[] ObterTiposAnaliseDisponiveis()
+    {
+        return new[] { "basica", "tendencia", "anomalia", "completa" };
     }
 }

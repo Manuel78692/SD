@@ -55,7 +55,8 @@ public class Agregador
     {
 
         OnLogEntry?.Invoke(message);
-    }    public async Task Run()
+    }
+    public async Task Run()
     {
         if (!Directory.Exists(dataFolder))
         {
@@ -102,7 +103,7 @@ public class Agregador
             Log($"Agregador {id}: Preferred queue '{preferredQueueName}' declarada e ligada ao exchange '{RabbitMqConstants.WavyTopicExchange}' com RK '{preferredRoutingKey}'. TTL: {RabbitMqConstants.MessageTtlMilliseconds}ms.");
 
             // Use AsyncEventingBasicConsumer
-            var preferredConsumer = new AsyncEventingBasicConsumer(_rabbitChannel); // <--- CORRECTED
+            var preferredConsumer = new AsyncEventingBasicConsumer(_rabbitChannel); 
             preferredConsumer.Received += async (sender, ea) => // Changed 'model' to 'sender' for typical event handler signature, though 'model' also works as it's the channel
             {
                 if (_isFailing) return; // Don't process if failing
@@ -118,12 +119,12 @@ public class Agregador
             Log($"Agregador {id}: Fallback queue '{RabbitMqConstants.AgregadorGeneralFallbackQueue}' declarada e ligada ao DLX '{RabbitMqConstants.AgregadorFallebackDlx}'.");
 
             // Use AsyncEventingBasicConsumer
-            var fallbackConsumer = new AsyncEventingBasicConsumer(_rabbitChannel); // <--- CORRECTED
+            var fallbackConsumer = new AsyncEventingBasicConsumer(_rabbitChannel);
             fallbackConsumer.Received += async (sender, ea) => // Changed 'model' to 'sender'
             {
                 await HandleReceivedMessage(ea, $"FallbackQueue ({RabbitMqConstants.AgregadorGeneralFallbackQueue})");
             };
-            _rabbitChannel.BasicConsume(queue: RabbitMqConstants.AgregadorGeneralFallbackQueue, autoAck: false, consumer: fallbackConsumer);            Log($"Agregador {id} aguardando mensagens nas queues '{preferredQueueName}' e '{RabbitMqConstants.AgregadorGeneralFallbackQueue}'. Pressione [enter] para sair.");
+            _rabbitChannel.BasicConsume(queue: RabbitMqConstants.AgregadorGeneralFallbackQueue, autoAck: false, consumer: fallbackConsumer); Log($"Agregador {id} aguardando mensagens nas queues '{preferredQueueName}' e '{RabbitMqConstants.AgregadorGeneralFallbackQueue}'. Pressione [enter] para sair.");
             // Keep alive for listening, but check for cancellation token
             while (!_agregadorCts.Token.IsCancellationRequested)
             {
